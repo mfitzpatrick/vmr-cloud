@@ -1,0 +1,27 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build custom env
+        id: custom_env
+        run: echo "TAGNAME=$(basename ${{ github.ref }})" >> $GITHUB_ENV
+
+      - name: Build release image
+        run: docker build -t ghcr.io/${{ github.repository }}:${{ env.TAGNAME }} -f vmr-cloud.dockerfile .
+
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push image
+        run: docker push ghcr.io/${{ github.repository }}:${{ env.TAGNAME }}
+

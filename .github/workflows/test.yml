@@ -1,0 +1,20 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build test image
+        run: docker build -t tester -f vmr-cloud.test.dockerfile .
+
+      - name: Run test container
+        run: docker run --rm tester
+
