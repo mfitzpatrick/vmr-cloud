@@ -20,6 +20,9 @@ func routeURL(r *http.Request) ([]byte, error) {
 	routes := []routeEntry{
 		{http.MethodPost, HTTP_URI_BASE + "/voyage", newVoyage},
 		{http.MethodGet, HTTP_URI_BASE + "/voyage", getVoyage},
+		{http.MethodPost, HTTP_URI_BASE + "/risk", newRisk},
+		{http.MethodPost, HTTP_URI_BASE + "/assist", newAssist},
+		{http.MethodGet, HTTP_URI_BASE + "/assist", newAssist},
 	}
 	var body string
 	if b, err := ioutil.ReadAll(r.Body); err == nil {
