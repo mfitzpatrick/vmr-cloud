@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -293,4 +294,114 @@ func TestStoreAssistUpdateOK(t *testing.T) {
 		Problem:  "Search",
 		Action:   "some action",
 	}, mapEntry)
+}
+
+func setupRiskStorage() {
+	riskCache = make(map[int]risk)
+}
+
+func TestStoreRisk(t *testing.T) {
+	setupRiskStorage()
+
+	testRisk := risk{
+		VoyageID: 1,
+	}
+	riskID, err := storeRisk(context.Background(), testRisk)
+	assert.Equal(t, nil, err)
+	testRisk.RiskID = 1
+	assert.Equal(t, testRisk.RiskID, riskID)
+
+	mapEntry, ok := riskCache[1]
+	assert.Equal(t, true, ok)
+	assert.Equal(t, testRisk, mapEntry)
+}
+
+func TestUpdateRiskFails(t *testing.T) {
+	setupRiskStorage()
+
+	_, err := storeRisk(context.Background(), risk{RiskID: 1})
+	var herror httpError
+	ok := errors.As(err, &herror)
+	assert.Equal(t, true, ok)
+	assert.Equal(t, IMMUTABLE_RISK.ID, herror.ID)
+}
+
+func TestRetrieveRisk(t *testing.T) {
+	setupRiskStorage()
+	riskCache[1] = risk{
+		RiskID:   1,
+		VoyageID: 1,
+	}
+
+	vEntry, err := retrieveRisk(context.Background(), 1)
+	assert.Equal(t, nil, err)
+
+	mapEntry, ok := riskCache[1]
+	assert.Equal(t, true, ok)
+	assert.Equal(t, mapEntry, vEntry)
+}
+
+func TestStoreRiskMultipleEntries(t *testing.T) {
+	setupRiskStorage()
+
+	testRisk := risk{
+		VoyageID: 1,
+	}
+	riskID, err := storeRisk(context.Background(), testRisk)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 1, riskID)
+
+	mapEntry, ok := riskCache[1]
+	assert.Equal(t, true, ok)
+	testRisk.RiskID = 1
+	assert.Equal(t, testRisk, mapEntry)
+
+	testRisk = risk{
+		VoyageID: 1,
+	}
+	riskID, err = storeRisk(context.Background(), testRisk)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 2, riskID)
+
+	mapEntry, ok = riskCache[2]
+	assert.Equal(t, true, ok)
+	testRisk.RiskID = 2
+	assert.Equal(t, testRisk, mapEntry)
+}
+
+func TestRetrieveRiskMultipleEntries(t *testing.T) {
+	setupRiskStorage()
+	riskCache[1] = risk{
+		RiskID:   1,
+		VoyageID: 1,
+	}
+	riskCache[2] = risk{
+		RiskID:   2,
+		VoyageID: 1,
+	}
+	riskCache[8] = risk{
+		RiskID:   8,
+		VoyageID: 1,
+	}
+
+	vEntry, err := retrieveRisk(context.Background(), 1)
+	assert.Equal(t, nil, err)
+
+	mapEntry, ok := riskCache[1]
+	assert.Equal(t, true, ok)
+	assert.Equal(t, mapEntry, vEntry)
+
+	vEntry, err = retrieveRisk(context.Background(), 2)
+	assert.Equal(t, nil, err)
+
+	mapEntry, ok = riskCache[2]
+	assert.Equal(t, true, ok)
+	assert.Equal(t, mapEntry, vEntry)
+
+	vEntry, err = retrieveRisk(context.Background(), 8)
+	assert.Equal(t, nil, err)
+
+	mapEntry, ok = riskCache[8]
+	assert.Equal(t, true, ok)
+	assert.Equal(t, mapEntry, vEntry)
 }

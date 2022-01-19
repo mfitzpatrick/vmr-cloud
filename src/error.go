@@ -20,9 +20,12 @@ var (
 	INVALID_VOYAGE_ID  = httpError{statusCode: http.StatusBadRequest, ID: "invalid-voyage-id"}
 	INVALID_ASSIST_ID  = httpError{statusCode: http.StatusBadRequest, ID: "invalid-assist-id"}
 	INVALID_RISK_ID    = httpError{statusCode: http.StatusBadRequest, ID: "invalid-risk-id"}
-	ENDPOINT_NOT_FOUND = httpError{statusCode: http.StatusNotFound, ID: "not-found"}
+	IMMUTABLE_RISK     = httpError{statusCode: http.StatusBadRequest, ID: "risk-is-not-mutable"}
+	RISK_TIME_REQUIRED = httpError{statusCode: http.StatusBadRequest, ID: "risk-requires-time"}
+	ENDPOINT_NOT_FOUND = httpError{statusCode: http.StatusNotFound, ID: "endpoint-not-found"}
 	VOYAGE_NOT_FOUND   = httpError{statusCode: http.StatusNotFound, ID: "voyage-not-found"}
 	ASSIST_NOT_FOUND   = httpError{statusCode: http.StatusNotFound, ID: "assist-not-found"}
+	RISK_NOT_FOUND     = httpError{statusCode: http.StatusNotFound, ID: "risk-not-found"}
 	JSON_UNMARSHAL     = httpError{statusCode: http.StatusInternalServerError, ID: "server-failed-json-parse"}
 	JSON_MARSHAL       = httpError{statusCode: http.StatusInternalServerError, ID: "server-failed-json-create"}
 	STORAGE_FAIL       = httpError{statusCode: http.StatusInternalServerError, ID: "failed-to-store"}

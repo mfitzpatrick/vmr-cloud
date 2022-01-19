@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+
 	"github.com/pkg/errors"
 )
 
 func init() {
 	ramcacheVoyageInit()
 	ramcacheAssistInit()
+	ramcacheRiskInit()
 }
 
 // VOYAGE RAMCACHE ITEMS
@@ -238,4 +240,113 @@ func retrieveAssist(ctx context.Context, assistID int) (assist, error) {
 		return assist{}, errors.Wrapf(ctx.Err(), "retrieve assist")
 	}
 	return assist{}, RETRIEVAL_FAIL.Errorf("retrieve assist")
+}
+
+// RISK RAMCACHE ITEMS
+type riskSerialiseResponse struct {
+	val risk
+	err error
+}
+
+type riskSerialiseCMD struct {
+	set  bool
+	val  risk
+	done chan<- riskSerialiseResponse
+}
+
+var riskCache map[int]risk
+var riskCacheChan chan riskSerialiseCMD
+
+func ramcacheRiskInit() {
+	riskCache = make(map[int]risk)
+	riskCacheChan = make(chan riskSerialiseCMD)
+	newRiskEntryID := func() int {
+		// Return an integer which is 1 more than the maximum index currently in the map
+		max := 0
+		for num, _ := range riskCache {
+			if num > max {
+				max = num
+			}
+		}
+		return max + 1
+	}
+	set := func(cmd riskSerialiseCMD) (risk, error) {
+		if cmd.val.RiskID != 0 {
+			return risk{}, IMMUTABLE_RISK.Errorf("risk storage map set")
+		} else if cmd.val.VoyageID == 0 {
+			return risk{}, INVALID_VOYAGE_ID.Errorf("risk storage map set")
+		} else {
+			// A new record should be created. Get the ID
+			cmd.val.RiskID = newRiskEntryID()
+		}
+		riskCache[cmd.val.RiskID] = cmd.val
+		return risk{RiskID: cmd.val.RiskID}, nil
+	}
+	get := func(cmd riskSerialiseCMD) (risk, error) {
+		if cmd.val.RiskID == 0 {
+			return risk{}, INVALID_RISK_ID.Errorf("risk storage map get")
+		}
+		if val, ok := riskCache[cmd.val.RiskID]; !ok {
+			return risk{}, RISK_NOT_FOUND.Errorf("risk storage map get")
+		} else {
+			return val, nil
+		}
+	}
+	go func() {
+		for {
+			select {
+			case cmd := <-riskCacheChan:
+				resp := riskSerialiseResponse{}
+				if cmd.set {
+					resp.val, resp.err = set(cmd)
+				} else {
+					resp.val, resp.err = get(cmd)
+				}
+				cmd.done <- resp
+			}
+		}
+	}()
+}
+
+func storeRisk(ctx context.Context, v risk) (int, error) {
+	done := make(chan riskSerialiseResponse)
+	cmd := riskSerialiseCMD{
+		set:  true,
+		val:  v,
+		done: done,
+	}
+	select { //Send to map
+	case riskCacheChan <- cmd:
+	case <-ctx.Done():
+		return 0, errors.Wrapf(ctx.Err(), "store risk")
+	}
+	select { //retrieve answer
+	case resp := <-done:
+		return resp.val.RiskID, errors.Wrapf(resp.err, "store risk")
+	case <-ctx.Done():
+		return 0, errors.Wrapf(ctx.Err(), "store risk")
+	}
+	return 0, STORAGE_FAIL.Errorf("store risk")
+}
+
+func retrieveRisk(ctx context.Context, riskID int) (risk, error) {
+	done := make(chan riskSerialiseResponse)
+	cmd := riskSerialiseCMD{
+		val: risk{
+			RiskID: riskID,
+		},
+		done: done,
+	}
+	select { //Send to map
+	case riskCacheChan <- cmd:
+	case <-ctx.Done():
+		return risk{}, errors.Wrapf(ctx.Err(), "retrieve risk")
+	}
+	select { //retrieve answer
+	case resp := <-done:
+		return resp.val, errors.Wrapf(resp.err, "retrieve risk")
+	case <-ctx.Done():
+		return risk{}, errors.Wrapf(ctx.Err(), "retrieve risk")
+	}
+	return risk{}, RETRIEVAL_FAIL.Errorf("retrieve risk")
 }
