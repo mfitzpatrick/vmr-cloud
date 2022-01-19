@@ -155,3 +155,142 @@ func TestStoreVoyageUpdateOK(t *testing.T) {
 		Desc:             "some description",
 	}, mapEntry)
 }
+
+func setupAssistStorage() {
+	assistCache = make(map[int]assist)
+}
+
+func TestStoreAssist(t *testing.T) {
+	setupAssistStorage()
+
+	testAssist := assist{
+		AssistID: 1,
+		Problem:  "Breakdown",
+	}
+	assistID, err := storeAssist(context.Background(), testAssist)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, testAssist.AssistID, assistID)
+
+	mapEntry, ok := assistCache[1]
+	assert.Equal(t, true, ok)
+	assert.Equal(t, testAssist, mapEntry)
+}
+
+func TestRetrieveAssist(t *testing.T) {
+	setupAssistStorage()
+	assistCache[1] = assist{
+		AssistID: 1,
+		Problem:  "Breakdown",
+	}
+
+	vEntry, err := retrieveAssist(context.Background(), 1)
+	assert.Equal(t, nil, err)
+
+	mapEntry, ok := assistCache[1]
+	assert.Equal(t, true, ok)
+	assert.Equal(t, mapEntry, vEntry)
+}
+
+func TestStoreAssistMultipleEntries(t *testing.T) {
+	setupAssistStorage()
+
+	testAssist := assist{
+		VoyageID: 1,
+		Problem:  "Breakdown",
+	}
+	assistID, err := storeAssist(context.Background(), testAssist)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 1, assistID)
+
+	mapEntry, ok := assistCache[1]
+	assert.Equal(t, true, ok)
+	testAssist.AssistID = 1
+	assert.Equal(t, testAssist, mapEntry)
+
+	testAssist = assist{
+		VoyageID: 1,
+		Problem:  "Breakdown",
+	}
+	assistID, err = storeAssist(context.Background(), testAssist)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 2, assistID)
+
+	mapEntry, ok = assistCache[2]
+	assert.Equal(t, true, ok)
+	testAssist.AssistID = 2
+	assert.Equal(t, testAssist, mapEntry)
+}
+
+func TestRetrieveAssistMultipleEntries(t *testing.T) {
+	setupAssistStorage()
+	assistCache[1] = assist{
+		AssistID: 1,
+		Problem:  "Breakdown",
+	}
+	assistCache[2] = assist{
+		AssistID: 2,
+		Problem:  "Jump Start",
+	}
+	assistCache[8] = assist{
+		AssistID: 8,
+		Problem:  "Search",
+		Client:   client{Name: "Bob"},
+	}
+
+	vEntry, err := retrieveAssist(context.Background(), 1)
+	assert.Equal(t, nil, err)
+
+	mapEntry, ok := assistCache[1]
+	assert.Equal(t, true, ok)
+	assert.Equal(t, mapEntry, vEntry)
+
+	vEntry, err = retrieveAssist(context.Background(), 2)
+	assert.Equal(t, nil, err)
+
+	mapEntry, ok = assistCache[2]
+	assert.Equal(t, true, ok)
+	assert.Equal(t, mapEntry, vEntry)
+
+	vEntry, err = retrieveAssist(context.Background(), 8)
+	assert.Equal(t, nil, err)
+
+	mapEntry, ok = assistCache[8]
+	assert.Equal(t, true, ok)
+	assert.Equal(t, mapEntry, vEntry)
+}
+
+func TestStoreAssistUpdateOK(t *testing.T) {
+	setupAssistStorage()
+
+	testAssist := assist{
+		VoyageID: 1,
+		Problem:  "Search",
+	}
+	assistID, err := storeAssist(context.Background(), testAssist)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 1, assistID)
+
+	mapEntry, ok := assistCache[1]
+	assert.Equal(t, true, ok)
+	testAssist.AssistID = 1
+	assert.Equal(t, testAssist, mapEntry)
+
+	// Now update the existing entry and check that the structs are properly merged
+	testAssist = assist{
+		AssistID: 1,
+		Action:   "some action",
+	}
+	assistID, err = storeAssist(context.Background(), testAssist)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 1, assistID)
+
+	mapEntry, ok = assistCache[1]
+	assert.Equal(t, true, ok)
+	testAssist.AssistID = 2
+	assert.Equal(t, assist{
+		AssistID: 1,
+		VoyageID: 1,
+		Problem:  "Search",
+		Action:   "some action",
+	}, mapEntry)
+}

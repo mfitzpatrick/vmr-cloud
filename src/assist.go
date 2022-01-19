@@ -48,23 +48,25 @@ type assist struct {
 	Dest location `json:"destination"`
 }
 
-func newAssist(ctx context.Context, body string) ([]byte, error) {
+func postAssist(ctx context.Context, body string) ([]byte, error) {
 	type request struct {
 		assist
 	}
 	var req request
 	if err := json.Unmarshal([]byte(body), &req); err != nil {
-		return []byte{}, JSON_UNMARSHAL.Errorf("new assist: %v with input %s", err, body)
+		return []byte{}, JSON_UNMARSHAL.Errorf("post assist: %v with input %s", err, body)
 	}
-	if req.VoyageID == 0 {
-		return []byte{}, INVALID_VOYAGE_ID.Errorf("new assist")
+	if req.AssistID == 0 && req.VoyageID == 0 {
+		return []byte{}, INVALID_VOYAGE_ID.Errorf("post assist - set voyage ID to create a new assist entry")
 	}
-	if b, err := json.Marshal(struct {
+	if assistID, err := storeAssist(ctx, req.assist); err != nil {
+		return []byte{}, STORAGE_FAIL.Errorf("post assist: %v", err)
+	} else if b, err := json.Marshal(struct {
 		AssistID int `json:"assist-id"`
 	}{
-		AssistID: 1,
+		AssistID: assistID,
 	}); err != nil {
-		return []byte{}, JSON_MARSHAL.Errorf("new assist: %v", err)
+		return []byte{}, JSON_MARSHAL.Errorf("post assist: %v", err)
 	} else {
 		return b, nil
 	}
@@ -79,13 +81,11 @@ func getAssist(ctx context.Context, body string) ([]byte, error) {
 		return []byte{}, JSON_UNMARSHAL.Errorf("get assist: %v with input %s", err, body)
 	}
 	if req.AssistID == 0 {
-		return []byte{}, INVALID_VOYAGE_ID.Errorf("get assist")
+		return []byte{}, INVALID_ASSIST_ID.Errorf("get assist")
 	}
-	if b, err := json.Marshal(struct {
-		assist
-	}{assist{
-		AssistID: 1,
-	}}); err != nil {
+	if foundItem, err := retrieveAssist(ctx, req.AssistID); err != nil {
+		return []byte{}, RETRIEVAL_FAIL.Errorf("get assist: %v", err)
+	} else if b, err := json.Marshal(foundItem); err != nil {
 		return []byte{}, JSON_MARSHAL.Errorf("get assist: %v", err)
 	} else {
 		return b, nil

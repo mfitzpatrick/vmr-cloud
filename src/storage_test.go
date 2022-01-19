@@ -18,7 +18,7 @@ func equalVoyage(t *testing.T, vExpect, v1, v2 voyage) bool {
 	return true
 }
 
-func TestMergeStructs(t *testing.T) {
+func TestMergeVoyageStructs(t *testing.T) {
 	v1 := voyage{
 		VoyageID: 1,
 	}
@@ -150,6 +150,138 @@ func TestMergeStructs(t *testing.T) {
 				Tide: tide{
 					Height: 3.72,
 				},
+			},
+		},
+	)
+}
+
+func equalAssist(t *testing.T, vExpect, v1, v2 assist) bool {
+	vOut, err := mergeAssistStructs(v1, v2)
+	if !assert.Equal(t, nil, err) {
+		return false
+	}
+	if !assert.Equal(t, true, reflect.DeepEqual(vExpect, vOut)) {
+		return false
+	}
+	return true
+}
+
+func TestMergeAssistStructs(t *testing.T) {
+	v1 := assist{
+		AssistID: 1,
+	}
+	equalAssist(t, v1, v1, assist{})
+
+	equalAssist(t,
+		assist{
+			AssistID: 2,
+		}, assist{
+			AssistID: 0,
+		}, assist{
+			AssistID: 2,
+		},
+	)
+
+	equalAssist(t,
+		assist{
+			AssistID: 2,
+		}, assist{
+			AssistID: 2,
+		}, assist{
+			AssistID: 0,
+		},
+	)
+
+	equalAssist(t,
+		assist{
+			AssistID: 2,
+			Client: client{
+				Name: "Alice",
+			},
+		}, assist{
+			AssistID: 0,
+			Client: client{
+				Name: "Alice",
+			},
+		}, assist{
+			AssistID: 2,
+		},
+	)
+
+	equalAssist(t,
+		assist{
+			AssistID: 2,
+			Client: client{
+				Name: "Alice",
+			},
+		}, assist{
+			AssistID: 0,
+		}, assist{
+			AssistID: 2,
+			Client: client{
+				Name: "Alice",
+			},
+		},
+	)
+
+	equalAssist(t,
+		assist{
+			AssistID: 2,
+			Client: client{
+				Name:  "Alice",
+				Phone: "123456",
+			},
+			Problem: "sample problem",
+		}, assist{
+			AssistID: 0,
+			Client: client{
+				Name: "Alice",
+			},
+			Problem: "sample problem",
+		}, assist{
+			AssistID: 2,
+			Client: client{
+				Phone: "123456",
+			},
+		},
+	)
+
+	equalAssist(t,
+		assist{
+			AssistID: 2,
+			Client: client{
+				Name:     "Alice",
+				Phone:    "123456",
+				MemberNo: 57,
+			},
+			Pickup: location{
+				Name: "Coomera Waters",
+				GPS: coordinate{
+					Lat:  -27.0192739,
+					Long: 153.2937465,
+				},
+			},
+		}, assist{
+			AssistID: 0,
+			Client: client{
+				Name:     "Alice",
+				MemberNo: 57,
+			},
+			Pickup: location{
+				Name: "Coomera Waters",
+				GPS: coordinate{
+					Long: 153.2937465,
+				},
+			},
+		}, assist{
+			AssistID: 2,
+			Pickup: location{
+				GPS: coordinate{
+					Lat: -27.0192739,
+				},
+			},
+			Client: client{
+				Phone: "123456",
 			},
 		},
 	)

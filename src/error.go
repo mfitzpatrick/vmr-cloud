@@ -18,9 +18,11 @@ type httpError struct {
 var (
 	INVALID_VESSEL_ID  = httpError{statusCode: http.StatusBadRequest, ID: "invalid-vessel-id"}
 	INVALID_VOYAGE_ID  = httpError{statusCode: http.StatusBadRequest, ID: "invalid-voyage-id"}
+	INVALID_ASSIST_ID  = httpError{statusCode: http.StatusBadRequest, ID: "invalid-assist-id"}
 	INVALID_RISK_ID    = httpError{statusCode: http.StatusBadRequest, ID: "invalid-risk-id"}
-	ENDPOINT_NOT_FOUND = httpError{statusCode: http.StatusBadRequest, ID: "not-found"}
-	VOYAGE_NOT_FOUND   = httpError{statusCode: http.StatusBadRequest, ID: "voyage-not-found"}
+	ENDPOINT_NOT_FOUND = httpError{statusCode: http.StatusNotFound, ID: "not-found"}
+	VOYAGE_NOT_FOUND   = httpError{statusCode: http.StatusNotFound, ID: "voyage-not-found"}
+	ASSIST_NOT_FOUND   = httpError{statusCode: http.StatusNotFound, ID: "assist-not-found"}
 	JSON_UNMARSHAL     = httpError{statusCode: http.StatusInternalServerError, ID: "server-failed-json-parse"}
 	JSON_MARSHAL       = httpError{statusCode: http.StatusInternalServerError, ID: "server-failed-json-create"}
 	STORAGE_FAIL       = httpError{statusCode: http.StatusInternalServerError, ID: "failed-to-store"}

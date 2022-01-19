@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"testing"
 
@@ -47,5 +48,97 @@ func TestGetAssistBadID(t *testing.T) {
 		"assist-id": 0,
 	})
 	assert.Equal(t, nil, err)
-	equalHTTPError(t, INVALID_VOYAGE_ID, code, body)
+	equalHTTPError(t, INVALID_ASSIST_ID, code, body)
+}
+
+func testAssistStoreAndRetrieve(t *testing.T, expect, set map[string]interface{}) {
+	code, body, err := request(http.MethodPost, "/assist", set)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, http.StatusOK, code)
+	assert.Equal(t, true, equalJSON(t, map[string]interface{}{
+		"assist-id": expect["assist-id"],
+	}, body))
+	var returnedMap map[string]interface{}
+	if err := json.Unmarshal([]byte(body), &returnedMap); err != nil {
+		assert.Equal(t, nil, err)
+	} else {
+		assert.Equal(t, expect["assist-id"], returnedMap["assist-id"])
+	}
+
+	code, body, err = request(http.MethodGet, "/assist", map[string]interface{}{
+		"assist-id": expect["assist-id"],
+	})
+	assert.Equal(t, nil, err)
+	assert.Equal(t, http.StatusOK, code)
+	equalAssistMap(t, expect, body)
+}
+
+func TestGetAssistStoreAndRetrieve(t *testing.T) {
+	setupAssistStorage()
+
+	testAssistStoreAndRetrieve(t, map[string]interface{}{
+		"assist-id": float64(1),
+		"voyage-id": 4,
+		"problem":   "Breakdown",
+	}, map[string]interface{}{
+		"voyage-id": 4,
+		"problem":   "Breakdown",
+	})
+
+	testAssistStoreAndRetrieve(t, map[string]interface{}{
+		"assist-id": float64(2),
+		"voyage-id": 2,
+		"problem":   "Jump Start",
+	}, map[string]interface{}{
+		"voyage-id": 2,
+		"problem":   "Jump Start",
+	})
+
+	testAssistStoreAndRetrieve(t, map[string]interface{}{
+		"assist-id": float64(2),
+		"voyage-id": 2,
+		"problem":   "Jump Start",
+		"action":    "Jump Start",
+	}, map[string]interface{}{
+		"assist-id": float64(2),
+		"action":    "Jump Start",
+	})
+
+	testAssistStoreAndRetrieve(t, map[string]interface{}{
+		"assist-id": float64(3),
+		"voyage-id": 2,
+		"client": map[string]interface{}{
+			"name":          "Persephone",
+			"phone":         "123456",
+			"member-number": 0,
+		},
+	}, map[string]interface{}{
+		"voyage-id": 2,
+		"client": map[string]interface{}{
+			"name":          "Persephone",
+			"phone":         "123456",
+			"member-number": 0,
+		},
+	})
+
+	testAssistStoreAndRetrieve(t, map[string]interface{}{
+		"assist-id": float64(2),
+		"voyage-id": 2,
+		"problem":   "Jump Start",
+		"action":    "Jump Start",
+		"pickup-location": map[string]interface{}{
+			"gps": map[string]interface{}{
+				"lat":  -27.4748923,
+				"long": 153.4839283,
+			},
+		},
+	}, map[string]interface{}{
+		"assist-id": float64(2),
+		"pickup-location": map[string]interface{}{
+			"gps": map[string]interface{}{
+				"lat":  -27.4748923,
+				"long": 153.4839283,
+			},
+		},
+	})
 }
