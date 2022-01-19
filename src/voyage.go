@@ -22,7 +22,7 @@ type wind struct {
 }
 
 type tide struct {
-	Height int       `json:"height-metres"`
+	Height float64   `json:"height-metres"`
 	Time   time.Time `json:"time"`
 }
 
@@ -50,23 +50,25 @@ type voyage struct {
 	Desc  string `json:"description"`
 }
 
-func newVoyage(ctx context.Context, body string) ([]byte, error) {
+func postVoyage(ctx context.Context, body string) ([]byte, error) {
 	type request struct {
 		voyage
 	}
 	var req request
 	if err := json.Unmarshal([]byte(body), &req); err != nil {
-		return []byte{}, JSON_UNMARSHAL.Errorf("new voyage: %v with input %s", err, body)
+		return []byte{}, JSON_UNMARSHAL.Errorf("post voyage: %v with input %s", err, body)
 	}
-	if req.VesselID == 0 {
-		return []byte{}, INVALID_VESSEL_ID.Errorf("new voyage")
+	if req.VesselID == 0 && req.VoyageID == 0 {
+		return []byte{}, INVALID_VOYAGE_ID.Errorf("post voyage - set vessel ID to create new voyage entry")
 	}
-	if b, err := json.Marshal(struct {
+	if voyageID, err := storeVoyage(ctx, req.voyage); err != nil {
+		return []byte{}, STORAGE_FAIL.Errorf("post voyage: %v", err)
+	} else if b, err := json.Marshal(struct {
 		VoyageID int `json:"voyage-id"`
 	}{
-		VoyageID: 1,
+		VoyageID: voyageID,
 	}); err != nil {
-		return []byte{}, JSON_MARSHAL.Errorf("new voyage: %v", err)
+		return []byte{}, JSON_MARSHAL.Errorf("post voyage: %v", err)
 	} else {
 		return b, nil
 	}
@@ -83,11 +85,9 @@ func getVoyage(ctx context.Context, body string) ([]byte, error) {
 	if req.VoyageID == 0 {
 		return []byte{}, INVALID_VOYAGE_ID.Errorf("get voyage")
 	}
-	if b, err := json.Marshal(struct {
-		voyage
-	}{voyage{
-		VoyageID: 1,
-	}}); err != nil {
+	if foundItem, err := retrieveVoyage(ctx, req.VoyageID); err != nil {
+		return []byte{}, RETRIEVAL_FAIL.Errorf("get voyage: %v", err)
+	} else if b, err := json.Marshal(foundItem); err != nil {
 		return []byte{}, JSON_MARSHAL.Errorf("get voyage: %v", err)
 	} else {
 		return b, nil

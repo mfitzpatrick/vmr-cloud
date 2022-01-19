@@ -20,8 +20,11 @@ var (
 	INVALID_VOYAGE_ID  = httpError{statusCode: http.StatusBadRequest, ID: "invalid-voyage-id"}
 	INVALID_RISK_ID    = httpError{statusCode: http.StatusBadRequest, ID: "invalid-risk-id"}
 	ENDPOINT_NOT_FOUND = httpError{statusCode: http.StatusBadRequest, ID: "not-found"}
+	VOYAGE_NOT_FOUND   = httpError{statusCode: http.StatusBadRequest, ID: "voyage-not-found"}
 	JSON_UNMARSHAL     = httpError{statusCode: http.StatusInternalServerError, ID: "server-failed-json-parse"}
 	JSON_MARSHAL       = httpError{statusCode: http.StatusInternalServerError, ID: "server-failed-json-create"}
+	STORAGE_FAIL       = httpError{statusCode: http.StatusInternalServerError, ID: "failed-to-store"}
+	RETRIEVAL_FAIL     = httpError{statusCode: http.StatusInternalServerError, ID: "failed-to-retrieve"}
 )
 
 func (h httpError) StringFromChain(chain error) string {
