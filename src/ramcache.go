@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"sort"
 
 	"github.com/pkg/errors"
 )
@@ -120,7 +121,14 @@ func retrieveVoyage(ctx context.Context, voyageID int) (voyage, error) {
 	}
 	select { //retrieve answer
 	case resp := <-done:
-		return resp.val, errors.Wrapf(resp.err, "retrieve voyage")
+		if resp.err != nil {
+			return voyage{}, errors.Wrapf(resp.err, "retrieve voyage")
+		} else if riskList, err := retrieveRiskForVoyage(ctx, resp.val.VoyageID); err != nil {
+			return voyage{}, RETRIEVAL_FAIL.Errorf("retrieve voyage risk list")
+		} else {
+			resp.val.RiskList = riskList
+		}
+		return resp.val, nil
 	case <-ctx.Done():
 		return voyage{}, errors.Wrapf(ctx.Err(), "retrieve voyage")
 	}
@@ -244,14 +252,15 @@ func retrieveAssist(ctx context.Context, assistID int) (assist, error) {
 
 // RISK RAMCACHE ITEMS
 type riskSerialiseResponse struct {
-	val risk
+	val []risk
 	err error
 }
 
 type riskSerialiseCMD struct {
-	set  bool
-	val  risk
-	done chan<- riskSerialiseResponse
+	set    bool
+	getAll bool
+	val    risk
+	done   chan<- riskSerialiseResponse
 }
 
 var riskCache map[int]risk
@@ -270,26 +279,56 @@ func ramcacheRiskInit() {
 		}
 		return max + 1
 	}
-	set := func(cmd riskSerialiseCMD) (risk, error) {
+	findAllForVoyageID := func(voyageID int) []risk {
+		riskOut := []risk{}
+		for _, v := range riskCache {
+			if v.VoyageID == voyageID {
+				riskOut = append(riskOut, v)
+			}
+		}
+		// Return the slice sorted by time descending
+		sort.Slice(riskOut, func(i, j int) bool {
+			if !riskOut[i].Time.IsZero() && !riskOut[j].Time.IsZero() {
+				return riskOut[i].Time.After(riskOut[j].Time)
+			} else {
+				return riskOut[i].RiskID > riskOut[j].RiskID
+			}
+		})
+		return riskOut
+	}
+	set := func(cmd riskSerialiseCMD) ([]risk, error) {
 		if cmd.val.RiskID != 0 {
-			return risk{}, IMMUTABLE_RISK.Errorf("risk storage map set")
+			return []risk{}, IMMUTABLE_RISK.Errorf("risk storage map set")
 		} else if cmd.val.VoyageID == 0 {
-			return risk{}, INVALID_VOYAGE_ID.Errorf("risk storage map set")
+			return []risk{}, INVALID_VOYAGE_ID.Errorf("risk storage map set")
 		} else {
 			// A new record should be created. Get the ID
 			cmd.val.RiskID = newRiskEntryID()
 		}
 		riskCache[cmd.val.RiskID] = cmd.val
-		return risk{RiskID: cmd.val.RiskID}, nil
+		return []risk{{RiskID: cmd.val.RiskID}}, nil
 	}
-	get := func(cmd riskSerialiseCMD) (risk, error) {
-		if cmd.val.RiskID == 0 {
-			return risk{}, INVALID_RISK_ID.Errorf("risk storage map get")
+	getAll := func(cmd riskSerialiseCMD) ([]risk, error) {
+		if cmd.val.VoyageID == 0 {
+			return []risk{}, INVALID_VOYAGE_ID.Errorf("risk storage map getAll voyage must be nonzero")
+		} else if cmd.val.RiskID != 0 {
+			return []risk{}, INVALID_RISK_ID.Errorf("risk storage map getAll risk cannot be set")
 		}
+		// The request is to return every item tagged with the voyage ID.
+		return findAllForVoyageID(cmd.val.VoyageID), nil
+	}
+	get := func(cmd riskSerialiseCMD) ([]risk, error) {
+		if cmd.val.VoyageID != 0 {
+			return []risk{}, INVALID_VOYAGE_ID.Errorf("risk storage map get voyage cannot be set")
+		} else if cmd.val.RiskID == 0 {
+			return []risk{}, INVALID_RISK_ID.Errorf("risk storage map get risk must be nonzero")
+		}
+		// The request is to return a single item with a given risk ID.
 		if val, ok := riskCache[cmd.val.RiskID]; !ok {
-			return risk{}, RISK_NOT_FOUND.Errorf("risk storage map get")
+			return []risk{}, RISK_NOT_FOUND.Errorf("risk storage map get no risk for ID %d",
+				cmd.val.RiskID)
 		} else {
-			return val, nil
+			return []risk{val}, nil
 		}
 	}
 	go func() {
@@ -299,6 +338,8 @@ func ramcacheRiskInit() {
 				resp := riskSerialiseResponse{}
 				if cmd.set {
 					resp.val, resp.err = set(cmd)
+				} else if cmd.getAll {
+					resp.val, resp.err = getAll(cmd)
 				} else {
 					resp.val, resp.err = get(cmd)
 				}
@@ -322,7 +363,12 @@ func storeRisk(ctx context.Context, v risk) (int, error) {
 	}
 	select { //retrieve answer
 	case resp := <-done:
-		return resp.val.RiskID, errors.Wrapf(resp.err, "store risk")
+		if resp.err != nil {
+			return 0, errors.Wrapf(resp.err, "store risk")
+		} else if len(resp.val) != 1 {
+			return 0, STORAGE_FAIL.Errorf("store risk returned too many entries: %d", len(resp.val))
+		}
+		return resp.val[0].RiskID, nil
 	case <-ctx.Done():
 		return 0, errors.Wrapf(ctx.Err(), "store risk")
 	}
@@ -344,9 +390,37 @@ func retrieveRisk(ctx context.Context, riskID int) (risk, error) {
 	}
 	select { //retrieve answer
 	case resp := <-done:
-		return resp.val, errors.Wrapf(resp.err, "retrieve risk")
+		if resp.err != nil {
+			return risk{}, errors.Wrapf(resp.err, "retrieve risk")
+		} else if len(resp.val) != 1 {
+			return risk{}, RETRIEVAL_FAIL.Errorf("retrieve risk too many entries: %d", len(resp.val))
+		}
+		return resp.val[0], nil
 	case <-ctx.Done():
 		return risk{}, errors.Wrapf(ctx.Err(), "retrieve risk")
 	}
 	return risk{}, RETRIEVAL_FAIL.Errorf("retrieve risk")
+}
+
+func retrieveRiskForVoyage(ctx context.Context, voyageID int) ([]risk, error) {
+	done := make(chan riskSerialiseResponse)
+	cmd := riskSerialiseCMD{
+		getAll: true,
+		val: risk{
+			VoyageID: voyageID,
+		},
+		done: done,
+	}
+	select { //Send to map
+	case riskCacheChan <- cmd:
+	case <-ctx.Done():
+		return []risk{}, errors.Wrapf(ctx.Err(), "retrieve risk")
+	}
+	select { //retrieve answer
+	case resp := <-done:
+		return resp.val, errors.Wrapf(resp.err, "retrieve risk")
+	case <-ctx.Done():
+		return []risk{}, errors.Wrapf(ctx.Err(), "retrieve risk")
+	}
+	return []risk{}, RETRIEVAL_FAIL.Errorf("retrieve risk")
 }

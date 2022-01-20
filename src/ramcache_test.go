@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"sort"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -40,6 +41,7 @@ func TestRetrieveVoyage(t *testing.T) {
 
 	mapEntry, ok := voyageCache[1]
 	assert.Equal(t, true, ok)
+	mapEntry.RiskList = []risk{}
 	assert.Equal(t, mapEntry, vEntry)
 }
 
@@ -98,6 +100,7 @@ func TestRetrieveVoyageMultipleEntries(t *testing.T) {
 
 	mapEntry, ok := voyageCache[1]
 	assert.Equal(t, true, ok)
+	mapEntry.RiskList = []risk{}
 	assert.Equal(t, mapEntry, vEntry)
 
 	vEntry, err = retrieveVoyage(context.Background(), 2)
@@ -105,6 +108,7 @@ func TestRetrieveVoyageMultipleEntries(t *testing.T) {
 
 	mapEntry, ok = voyageCache[2]
 	assert.Equal(t, true, ok)
+	mapEntry.RiskList = []risk{}
 	assert.Equal(t, mapEntry, vEntry)
 
 	vEntry, err = retrieveVoyage(context.Background(), 8)
@@ -112,6 +116,7 @@ func TestRetrieveVoyageMultipleEntries(t *testing.T) {
 
 	mapEntry, ok = voyageCache[8]
 	assert.Equal(t, true, ok)
+	mapEntry.RiskList = []risk{}
 	assert.Equal(t, mapEntry, vEntry)
 }
 
@@ -404,4 +409,39 @@ func TestRetrieveRiskMultipleEntries(t *testing.T) {
 	mapEntry, ok = riskCache[8]
 	assert.Equal(t, true, ok)
 	assert.Equal(t, mapEntry, vEntry)
+}
+
+func TestRetrieveRiskForVoyage(t *testing.T) {
+	setupRiskStorage()
+	riskList := []risk{{
+		RiskID:   1,
+		VoyageID: 1,
+		Mgmt:     1,
+	}, {
+		RiskID:   2,
+		VoyageID: 1,
+		Mgmt:     3,
+	}, {
+		RiskID:   3,
+		VoyageID: 1,
+		Mgmt:     3,
+	}}
+	for i, v := range riskList {
+		riskCache[i+1] = v
+	}
+
+	entryList, err := retrieveRiskForVoyage(context.Background(), 1)
+	assert.Equal(t, nil, err)
+	sort.Slice(riskList, func(i, j int) bool {
+		if !riskList[i].Time.IsZero() && !riskList[j].Time.IsZero() {
+			return riskList[i].Time.After(riskList[j].Time)
+		} else {
+			return riskList[i].RiskID > riskList[j].RiskID
+		}
+	})
+	assert.Equal(t, riskList, entryList)
+
+	entryList, err = retrieveRiskForVoyage(context.Background(), 2)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, []risk{}, entryList)
 }

@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"sort"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -77,12 +79,14 @@ func testVoyageStoreAndRetrieve(t *testing.T, expect, set map[string]interface{}
 
 func TestGetVoyageStoreAndRetrieve(t *testing.T) {
 	setupVoyageStorage()
+	setupRiskStorage()
 
 	testVoyageStoreAndRetrieve(t, map[string]interface{}{
-		"voyage-id":   float64(1),
-		"vessel-id":   4,
-		"start-hours": 101,
-		"title":       "Breakdown Coomera",
+		"voyage-id":    float64(1),
+		"vessel-id":    4,
+		"start-hours":  101,
+		"title":        "Breakdown Coomera",
+		"risk-history": []risk{},
 	}, map[string]interface{}{
 		"vessel-id":   4,
 		"start-hours": 101,
@@ -90,10 +94,11 @@ func TestGetVoyageStoreAndRetrieve(t *testing.T) {
 	})
 
 	testVoyageStoreAndRetrieve(t, map[string]interface{}{
-		"voyage-id":   float64(2),
-		"vessel-id":   2,
-		"start-hours": 102,
-		"title":       "Jump Start Tipplers",
+		"voyage-id":    float64(2),
+		"vessel-id":    2,
+		"start-hours":  102,
+		"title":        "Jump Start Tipplers",
+		"risk-history": []risk{},
 	}, map[string]interface{}{
 		"vessel-id":   2,
 		"start-hours": 102,
@@ -101,11 +106,12 @@ func TestGetVoyageStoreAndRetrieve(t *testing.T) {
 	})
 
 	testVoyageStoreAndRetrieve(t, map[string]interface{}{
-		"voyage-id":   float64(2),
-		"vessel-id":   2,
-		"start-hours": 102,
-		"title":       "Jump Start Tipplers",
-		"description": "Jump start jet ski on beach at tipplers. No incidents",
+		"voyage-id":    float64(2),
+		"vessel-id":    2,
+		"start-hours":  102,
+		"title":        "Jump Start Tipplers",
+		"description":  "Jump start jet ski on beach at tipplers. No incidents",
+		"risk-history": []risk{},
 	}, map[string]interface{}{
 		"voyage-id":   float64(2),
 		"description": "Jump start jet ski on beach at tipplers. No incidents",
@@ -120,6 +126,7 @@ func TestGetVoyageStoreAndRetrieve(t *testing.T) {
 			"name": "Gerry Hatrick",
 			"rank": "Offshore Skipper",
 		},
+		"risk-history": []risk{},
 	}, map[string]interface{}{
 		"vessel-id":   2,
 		"start-hours": 103,
@@ -142,6 +149,7 @@ func TestGetVoyageStoreAndRetrieve(t *testing.T) {
 				"direction-degrees": 050,
 			},
 		},
+		"risk-history": []risk{},
 	}, map[string]interface{}{
 		"voyage-id": float64(2),
 		"weather": map[string]interface{}{
@@ -151,4 +159,76 @@ func TestGetVoyageStoreAndRetrieve(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestVoyageAndRisk(t *testing.T) {
+	setupVoyageStorage()
+	setupRiskStorage()
+	staticTime := func(t *testing.T, timeString string) time.Time {
+		tm, err := time.Parse(time.RFC3339, timeString)
+		assert.Equal(t, nil, err)
+		return tm
+	}
+	riskList := []risk{{
+		VoyageID: 1,
+		Mgmt:     1,
+		Crew:     1,
+		Time:     staticTime(t, "2022-01-01T01:00:00.00Z"),
+	}, {
+		VoyageID: 1,
+		Mgmt:     2,
+		Crew:     2,
+		Time:     staticTime(t, "2022-01-01T02:00:00.00Z"),
+	}, {
+		VoyageID: 1,
+		Mgmt:     3,
+		Crew:     3,
+		Time:     staticTime(t, "2022-01-01T03:00:00.00Z"),
+	}}
+
+	testVoyageStoreAndRetrieve(t, map[string]interface{}{
+		"voyage-id":    float64(1),
+		"vessel-id":    4,
+		"start-hours":  101,
+		"title":        "Breakdown Coomera",
+		"risk-history": []risk{},
+	}, map[string]interface{}{
+		"vessel-id":   4,
+		"start-hours": 101,
+		"title":       "Breakdown Coomera",
+	})
+
+	// Add risk entries for voyage
+	for i, v := range riskList {
+		riskJSON, err := json.Marshal(v)
+		assert.Equal(t, nil, err)
+		var riskMap map[string]interface{}
+		err = json.Unmarshal(riskJSON, &riskMap)
+		assert.Equal(t, nil, err)
+		code, body, err := request(http.MethodPost, "/risk", riskMap)
+		assert.Equal(t, nil, err)
+		assert.Equal(t, http.StatusOK, code)
+		equalJSON(t, map[string]interface{}{
+			"risk-id": float64(i + 1),
+		}, body)
+		riskList[i].RiskID = i + 1
+	}
+
+	// Retrieve voyage info and check risk entries
+	code, body, err := request(http.MethodGet, "/voyage", map[string]interface{}{
+		"voyage-id": float64(1),
+	})
+	assert.Equal(t, nil, err)
+	assert.Equal(t, http.StatusOK, code)
+	retrievedVoyage := voyage{}
+	err = json.Unmarshal([]byte(body), &retrievedVoyage)
+	assert.Equal(t, nil, err)
+	sort.Slice(riskList, func(i, j int) bool {
+		if !riskList[i].Time.IsZero() && !riskList[j].Time.IsZero() {
+			return riskList[i].Time.After(riskList[j].Time)
+		} else {
+			return riskList[i].RiskID > riskList[j].RiskID
+		}
+	})
+	assert.Equal(t, riskList, retrievedVoyage.RiskList)
 }
