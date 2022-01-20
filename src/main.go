@@ -55,7 +55,7 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func init() {
-	http.HandleFunc(HTTP_URI_BASE, httpHandler)
+	http.HandleFunc(HTTP_URI_BASE+"/", httpHandler)
 }
 
 func main() {

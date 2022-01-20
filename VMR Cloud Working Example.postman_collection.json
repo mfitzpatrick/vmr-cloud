@@ -1,0 +1,263 @@
+{
+	"info": {
+		"_postman_id": "6997b6af-fcac-4245-b257-e2b3731c67a2",
+		"name": "VMR Cloud Working Example",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "New Voyage",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Parse and store variables\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    Object.prototype.updateCurrentVoyage(jsonData[\"voyage-id\"]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"vessel-id\": {{current_vessel}},\n    \"start-time\": \"2022-01-01T10:00:01Z\",\n    \"start-hours\": 1,\n    \"skipper\": {\n        \"crew-id\": 156,\n        \"name\": \"Anne\",\n        \"rank\": \"Inshore Skipper\"\n    },\n    \"crew\": [\n        {\n            \"crew-id\": 25,\n            \"name\": \"Peter\",\n            \"rank\": \"Crew\"\n        },\n        {\n            \"crew-id\": 900,\n            \"name\": \"Julie\",\n            \"rank\": \"New Recruit\"\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/voyage",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"voyage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Risk",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"voyage-id\": {{current_voyage}},\n    \"time\": \"2022-01-01T10:00:45Z\",\n    \"management\": 1,\n    \"crew\": 2,\n    \"environment\": 1,\n    \"equipment\": 1,\n    \"type\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/risk",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"risk"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Voyage",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"voyage-id\": {{current_voyage}},\n    \"title\": \"Tow from Coomera to Runaway Bay\",\n    \"description\": \"Tow vessel overheating from Coomera. Vessel was moored to pontoon. Taken to Runaway Bay Marina. No incidents.\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/voyage",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"voyage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Assist",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"voyage-id\": {{current_voyage}},\n    \"pickup-location\": {\n        \"name\": \"Coomera\",\n        \"gps\": {\n            \"lat\": -27.493021,\n            \"long\": 153.494023\n        },\n        \"status\": \"Berthed\"\n    },\n    \"problem\": \"Overheating\",\n    \"action\": \"Tow\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/assist",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"assist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Assist",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"voyage-id\": {{current_voyage}},\n    \"client\": {\n        \"name\": \"John\",\n        \"phone\": \"+123456789\",\n        \"vessel\": {\n            \"name\": \"Fat Hooker\",\n            \"registration\": \"AB123Q\",\n            \"type\": \"Cruiser\",\n            \"length-metres\": 5,\n            \"POB\": 4\n        }\n    },\n    \"destination\": {\n        \"name\": \"Runaway Bay\",\n        \"gps\": {\n            \"lat\": -27.494001,\n            \"long\": 153.121123\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/assist",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"assist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Risk",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"voyage-id\": {{current_voyage}},\n    \"time\": \"2022-01-01T11:12:05Z\",\n    \"management\": 1,\n    \"crew\": 1,\n    \"environment\": 1,\n    \"equipment\": 1,\n    \"type\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/risk",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"risk"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"Object.prototype.stopRun = function(reason) {",
+					"    postman.setNextRequest(null);",
+					"    pm.expect.fail(reason);",
+					"}",
+					"",
+					"Object.prototype.updateCurrentVessel = function(vesselID) {",
+					"    pm.collectionVariables.set(\"current_vessel\", vesselID);",
+					"}",
+					"",
+					"Object.prototype.updateCurrentVoyage = function(voyageID) {",
+					"    pm.collectionVariables.set(\"current_voyage\", voyageID);",
+					"}",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"pm.test(\"Check status code\", function () {",
+					"    pm.response.to.have.status(200);",
+					"});",
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "schema",
+			"value": "http"
+		},
+		{
+			"key": "server",
+			"value": "localhost:80"
+		},
+		{
+			"key": "current_vessel",
+			"value": "1",
+			"type": "default"
+		},
+		{
+			"key": "current_voyage",
+			"value": "1",
+			"type": "default"
+		}
+	]
+}

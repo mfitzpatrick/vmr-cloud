@@ -1,0 +1,248 @@
+{
+	"info": {
+		"_postman_id": "7e599ae3-0748-43ac-8456-37cda68121ad",
+		"name": "VMR Cloud API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "New Voyage",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"vessel-id\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/voyage",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"voyage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Voyage",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"voyage-id\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/voyage",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"voyage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Risk",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"voyage-id\": 1,\n    \"time\": \"2022-01-01T10:00:50Z\",\n    \"management\": 1,\n    \"crew\": 1,\n    \"environment\": 1,\n    \"equipment\": 1,\n    \"type\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/risk",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"risk"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Voyage",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"voyage-id\": 1,\n    \"StartTime\": \"1955-10-15T00:00:00Z\",\n    \"StartEngineHours\": 88,\n    \"weather\": {\n        \"wind\": {\n            \"speed-knots\": 10,\n            \"direction-degrees\": 150\n        },\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/voyage",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"voyage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Assist",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"voyage-id\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/assist",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"assist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Assist",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"assist-id\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/assist",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"assist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Assist",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"assist-id\": 1,\n    \"client\": {\n        \"name\": \"Batman\",\n        \"phone\": \"+123456789\",\n        \"member-number\": 0,\n        \"vessel\": {\n            \"name\": \"Cirrhosis of the River\",\n            \"registration\": \"AB123Q\",\n            \"type\": \"Cruiser\",\n            \"length-metres\": 5,\n            \"pob\": 1\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/assist",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"assist"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "schema",
+			"value": "http"
+		},
+		{
+			"key": "server",
+			"value": "localhost:80"
+		}
+	]
+}

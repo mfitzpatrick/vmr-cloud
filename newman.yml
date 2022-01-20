@@ -1,0 +1,23 @@
+# Docker-compose configuration for running newman-controlled tests with the VMR Cloud
+version: "3"
+
+services:
+  vmr:
+    build:
+      context: .
+      dockerfile: vmr-cloud.dockerfile
+    networks:
+      default:
+        aliases:
+          - vmr.docker
+
+  newman:
+    image: postman/newman:5-alpine
+    volumes:
+      - ./newman-env.json:/etc/postman/newman-env.json
+      - "./VMR Cloud Working Example.postman_collection.json:/etc/postman/collection.json"
+    depends_on:
+      - vmr
+    command: ["run", "/etc/postman/collection.json",
+      "--environment=/etc/postman/newman-env.json", "--verbose"]
+

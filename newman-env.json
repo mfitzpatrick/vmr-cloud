@@ -1,0 +1,7 @@
+{
+    "name": "VMR Cloud Environment for Newman",
+    "values": [
+        {"key": "server", "value": "vmr.docker:80", "enabled": true}
+    ],
+    "_postman_variable_scope": "environment"
+}
