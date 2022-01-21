@@ -232,3 +232,55 @@ func TestVoyageAndRisk(t *testing.T) {
 	})
 	assert.Equal(t, riskList, retrievedVoyage.RiskList)
 }
+
+func TestVoyageUpdateDoesntEraseTime(t *testing.T) {
+	setupVoyageStorage()
+	setupRiskStorage()
+
+	testVoyageStoreAndRetrieve(t, map[string]interface{}{
+		"voyage-id":    float64(1),
+		"vessel-id":    2,
+		"start-hours":  101,
+		"start-time":   "2022-01-03T15:13:12Z",
+		"end-time":     "0001-01-01T00:00:00Z",
+		"title":        "Breakdown Coomera",
+		"risk-history": []risk{},
+		"weather": map[string]interface{}{
+			"seaway-tide": map[string]interface{}{
+				"height-metres": 1.12,
+				"time":          "2022-01-01T11:12:13Z",
+			},
+		},
+	}, map[string]interface{}{
+		"vessel-id":   2,
+		"start-hours": 101,
+		"start-time":  "2022-01-03T15:13:12Z",
+		"title":       "Breakdown Coomera",
+		"weather": map[string]interface{}{
+			"seaway-tide": map[string]interface{}{
+				"height-metres": 1.12,
+				"time":          "2022-01-01T11:12:13Z",
+			},
+		},
+	})
+
+	testVoyageStoreAndRetrieve(t, map[string]interface{}{
+		"voyage-id":    float64(1),
+		"vessel-id":    2,
+		"start-hours":  101,
+		"start-time":   "2022-01-03T15:13:12Z",
+		"end-time":     "0001-01-01T00:00:00Z",
+		"title":        "Breakdown Coomera",
+		"desc":         "Breakdown of 14' cruiser at coomera waters",
+		"risk-history": []risk{},
+		"weather": map[string]interface{}{
+			"seaway-tide": map[string]interface{}{
+				"height-metres": 1.12,
+				"time":          "2022-01-01T11:12:13Z",
+			},
+		},
+	}, map[string]interface{}{
+		"voyage-id": float64(1),
+		"desc":      "Breakdown of 14' cruiser at coomera waters",
+	})
+}

@@ -1,4 +1,4 @@
-FROM golang:1.16-alpine AS build
+FROM golang:1.17-alpine AS build
 
 WORKDIR /app
 #disabling cgo means compiled binary will be completely statically linked

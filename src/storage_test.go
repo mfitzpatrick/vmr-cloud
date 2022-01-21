@@ -3,9 +3,70 @@ package main
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestMergeMaps(t *testing.T) {
+	getTime := func(t *testing.T, str string) time.Time {
+		tm, err := time.Parse(time.RFC3339, str)
+		assert.Equal(t, nil, err)
+		return tm
+	}
+	testMerge := func(m1, m2 map[string]interface{}) map[string]interface{} {
+		mergeMaps(m1, m2)
+		return m1
+	}
+	assert.Equal(t, map[string]interface{}{
+		"ts1":  getTime(t, "2022-01-01T05:05:05Z"),
+		"ts2":  getTime(t, "2022-01-01T05:05:05Z"),
+		"num1": 5,
+		"num2": 9,
+		"num3": 0,
+		"str1": "hi 1",
+		"str2": "hi 2",
+	}, testMerge(map[string]interface{}{
+		"ts1":  getTime(t, "2022-01-01T05:05:05Z"),
+		"ts2":  getTime(t, "0001-01-01T00:00:00Z"),
+		"num2": 9,
+		"num3": 0,
+		"str1": "hi 1",
+	}, map[string]interface{}{
+		"ts1":  getTime(t, "0001-01-01T00:00:00Z"),
+		"ts2":  getTime(t, "2022-01-01T05:05:05Z"),
+		"num1": 5,
+		"str2": "hi 2",
+	}))
+}
+
+func TestToInterfaceMap(t *testing.T) {
+	getTime := func(t *testing.T, str string) time.Time {
+		tm, err := time.Parse(time.RFC3339, str)
+		assert.Equal(t, nil, err)
+		return tm
+	}
+	expect := toInterfaceMap(voyage{}) // empty interface map
+	override := map[string]interface{}{
+		"start-time": getTime(t, "2022-01-01T11:12:13Z"),
+		"title":      "test title",
+		"weather": map[string]interface{}{
+			"seaway-tide": map[string]interface{}{
+				"height-metres": 1.1,
+				"time":          getTime(t, "2022-01-01T17:13:14Z"),
+			},
+		},
+	}
+	mergeMaps(expect, override)
+	assert.Equal(t, expect, toInterfaceMap(voyage{
+		StartTime: getTime(t, "2022-01-01T11:12:13Z"),
+		Title:     "test title",
+		Weather: weather{Tide: tide{
+			Height: 1.1,
+			Time:   getTime(t, "2022-01-01T17:13:14Z"),
+		}},
+	}))
+}
 
 func equalVoyage(t *testing.T, vExpect, v1, v2 voyage) bool {
 	vOut, err := mergeVoyageStructs(v1, v2)
@@ -19,6 +80,11 @@ func equalVoyage(t *testing.T, vExpect, v1, v2 voyage) bool {
 }
 
 func TestMergeVoyageStructs(t *testing.T) {
+	getTime := func(t *testing.T, str string) time.Time {
+		tm, err := time.Parse(time.RFC3339, str)
+		assert.Equal(t, nil, err)
+		return tm
+	}
 	v1 := voyage{
 		VoyageID: 1,
 	}
@@ -151,6 +217,18 @@ func TestMergeVoyageStructs(t *testing.T) {
 					Height: 3.72,
 				},
 			},
+		},
+	)
+
+	equalVoyage(t,
+		voyage{
+			VoyageID:  3,
+			StartTime: getTime(t, "2022-01-01T11:12:13Z"),
+		}, voyage{
+			VoyageID:  0,
+			StartTime: getTime(t, "2022-01-01T11:12:13Z"),
+		}, voyage{
+			VoyageID: 3,
 		},
 	)
 }

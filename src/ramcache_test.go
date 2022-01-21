@@ -4,6 +4,7 @@ import (
 	"context"
 	"sort"
 	"testing"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -122,12 +123,18 @@ func TestRetrieveVoyageMultipleEntries(t *testing.T) {
 
 func TestStoreVoyageUpdateOK(t *testing.T) {
 	setupVoyageStorage()
+	getTime := func(t *testing.T, str string) time.Time {
+		tm, err := time.Parse(time.RFC3339, str)
+		assert.Equal(t, nil, err)
+		return tm
+	}
 
 	testVoyage := voyage{
 		vessel: vessel{
 			VesselID: 1,
 		},
 		StartEngineHours: 101,
+		StartTime:        getTime(t, "2022-01-01T01:11:12Z"),
 	}
 	voyageID, err := storeVoyage(context.Background(), testVoyage)
 	assert.Equal(t, nil, err)
@@ -157,6 +164,7 @@ func TestStoreVoyageUpdateOK(t *testing.T) {
 			VesselID: 1,
 		},
 		StartEngineHours: 101,
+		StartTime:        getTime(t, "2022-01-01T01:11:12Z"),
 		Title:            "some title",
 		Desc:             "some description",
 	}, mapEntry)

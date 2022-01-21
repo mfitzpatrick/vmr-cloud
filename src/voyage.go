@@ -38,10 +38,10 @@ type voyage struct {
 	RiskList []risk  `json:"risk-history"`
 	Weather  weather `json:"weather"`
 
-	StartTime        time.Time `json"start-time"`
-	StartEngineHours int       `json"start-hours"`
-	EndTime          time.Time `json"end-time"`
-	EndEngineHours   int       `json"end-hours"`
+	StartTime        time.Time `json:"start-time"`
+	StartEngineHours int       `json:"start-hours"`
+	EndTime          time.Time `json:"end-time"`
+	EndEngineHours   int       `json:"end-hours"`
 
 	Skipper  crew   `json:"skipper"`
 	CrewList []crew `json:"crew"`

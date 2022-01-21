@@ -6,7 +6,7 @@
 	},
 	"item": [
 		{
-			"name": "New Voyage",
+			"name": "New Empty Voyage",
 			"event": [
 				{
 					"listen": "test",
@@ -14,7 +14,7 @@
 						"exec": [
 							"pm.test(\"Parse and store variables\", function () {",
 							"    var jsonData = pm.response.json();",
-							"    Object.prototype.updateCurrentVoyage(jsonData[\"voyage-id\"]);",
+							"    pm.collectionVariables.set(\"current_voyage\", jsonData[\"voyage-id\"]);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -26,7 +26,150 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"vessel-id\": {{current_vessel}},\n    \"start-time\": \"2022-01-01T10:00:01Z\",\n    \"start-hours\": 1,\n    \"skipper\": {\n        \"crew-id\": 156,\n        \"name\": \"Anne\",\n        \"rank\": \"Inshore Skipper\"\n    },\n    \"crew\": [\n        {\n            \"crew-id\": 25,\n            \"name\": \"Peter\",\n            \"rank\": \"Crew\"\n        },\n        {\n            \"crew-id\": 900,\n            \"name\": \"Julie\",\n            \"rank\": \"New Recruit\"\n        }\n    ]\n}",
+					"raw": "{\n    \"vessel-id\": {{current_vessel}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/voyage",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"voyage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Empty Voyage",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Read and cache empty test data\", function() {",
+							"    pm.collectionVariables.set(\"empty_voyage\", pm.response.json());",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"voyage-id\": {{current_voyage}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/voyage",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"voyage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Voyage",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Parse and store variables\", function () {",
+							"    var requestJSON = JSON.parse(request.data);",
+							"    var jsonData = pm.response.json();",
+							"    pm.collectionVariables.set(\"current_voyage\", jsonData[\"voyage-id\"]);",
+							"    requestJSON[\"voyage-id\"] = jsonData[\"voyage-id\"];",
+							"    pm.collectionVariables.set(\"sent_voyage_info\", requestJSON);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"vessel-id\": {{current_vessel}},\n    \"start-time\": \"2022-01-01T10:00:01Z\",\n    \"start-hours\": 1,\n    \"skipper\": {\n        \"crew-id\": 156,\n        \"name\": \"Anne\",\n        \"rank\": \"Inshore Skipper\"\n    },\n    \"crew\": [\n        {\n            \"crew-id\": 25,\n            \"name\": \"Peter\",\n            \"rank\": \"Crew\"\n        },\n        {\n            \"crew-id\": 900,\n            \"name\": \"Julie\",\n            \"rank\": \"New Recruit\"\n        }\n    ],\n    \"weather\": {\n        \"seaway-tide\": {\n            \"height-metres\": 1.56,\n            \"time\": \"2022-01-01T01:02:03Z\"\n        },\n        \"wind\": {\n            \"speed-knots\": 11,\n            \"direction-degrees\": 90\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/voyage",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"voyage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate Voyage Data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check all fields have been set\", function() {",
+							"    var responseJSON = pm.response.json();",
+							"    var emptyVoyage = pm.collectionVariables.get(\"empty_voyage\");",
+							"    var sentVoyageInfo = pm.collectionVariables.get(\"sent_voyage_info\");",
+							"    var expandedRequestJSON = Object.assign(emptyVoyage, sentVoyageInfo);",
+							"    if (!Object.prototype.compareJSON(expandedRequestJSON, responseJSON)) {",
+							"        postman.setNextRequest(null);",
+							"        pm.expect.fail(`Not all JSON fields updated. Expected ${JSON.stringify(expandedRequestJSON)}, actual: ${JSON.stringify(responseJSON)}`);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"voyage-id\": {{current_voyage}}\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -50,6 +193,28 @@
 		},
 		{
 			"name": "New Risk",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Parse and store variables\", function () {",
+							"    var requestJSON = JSON.parse(request.data);",
+							"    var jsonData = pm.response.json();",
+							"    var existingJSON = pm.collectionVariables.get(\"sent_voyage_info\");",
+							"    var riskList = existingJSON[\"risk-history\"];",
+							"    if (riskList == undefined) {",
+							"        riskList = [];",
+							"    }",
+							"    requestJSON[\"risk-id\"] = jsonData[\"risk-id\"];",
+							"    existingJSON[\"risk-history\"] = [requestJSON, ...riskList];",
+							"    pm.collectionVariables.set(\"sent_voyage_info\", existingJSON);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -78,13 +243,72 @@
 			"response": []
 		},
 		{
+			"name": "Validate Voyage Data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check all fields have been set\", function() {",
+							"    var responseJSON = pm.response.json();",
+							"    var emptyVoyage = pm.collectionVariables.get(\"empty_voyage\");",
+							"    var sentVoyageInfo = pm.collectionVariables.get(\"sent_voyage_info\");",
+							"    var expandedRequestJSON = Object.assign(emptyVoyage, sentVoyageInfo);",
+							"    if (!Object.prototype.compareJSON(expandedRequestJSON, responseJSON)) {",
+							"        postman.setNextRequest(null);",
+							"        pm.expect.fail(`Not all JSON fields updated. Expected ${JSON.stringify(expandedRequestJSON)}, actual: ${JSON.stringify(responseJSON)}`);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"voyage-id\": {{current_voyage}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/voyage",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"voyage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Update Voyage",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							""
+							"pm.test(\"Parse and store variables\", function () {",
+							"    var requestJSON = JSON.parse(request.data);",
+							"    var jsonData = pm.response.json();",
+							"    var existingJSON = pm.collectionVariables.get(\"sent_voyage_info\");",
+							"    var mergedJSON = Object.assign(existingJSON, requestJSON);",
+							"    mergedJSON[\"voyage-id\"] = jsonData[\"voyage-id\"];",
+							"    pm.collectionVariables.set(\"sent_voyage_info\", mergedJSON);",
+							"});"
 						],
 						"type": "text/javascript"
 					}
@@ -96,6 +320,58 @@
 				"body": {
 					"mode": "raw",
 					"raw": "{\n    \"voyage-id\": {{current_voyage}},\n    \"title\": \"Tow from Coomera to Runaway Bay\",\n    \"description\": \"Tow vessel overheating from Coomera. Vessel was moored to pontoon. Taken to Runaway Bay Marina. No incidents.\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/voyage",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"voyage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate Voyage Data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check all fields have been set\", function() {",
+							"    var responseJSON = pm.response.json();",
+							"    var emptyVoyage = pm.collectionVariables.get(\"empty_voyage\");",
+							"    var sentVoyageInfo = pm.collectionVariables.get(\"sent_voyage_info\");",
+							"    var expandedRequestJSON = Object.assign(emptyVoyage, sentVoyageInfo);",
+							"    if (!Object.prototype.compareJSON(expandedRequestJSON, responseJSON)) {",
+							"        postman.setNextRequest(null);",
+							"        pm.expect.fail(`Not all JSON fields updated. Expected ${JSON.stringify(expandedRequestJSON)}, actual: ${JSON.stringify(responseJSON)}`);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"voyage-id\": {{current_voyage}}\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -211,17 +487,23 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
+					"var _ = require('lodash');",
+					"",
 					"Object.prototype.stopRun = function(reason) {",
 					"    postman.setNextRequest(null);",
 					"    pm.expect.fail(reason);",
 					"}",
 					"",
-					"Object.prototype.updateCurrentVessel = function(vesselID) {",
-					"    pm.collectionVariables.set(\"current_vessel\", vesselID);",
+					"Object.prototype.expandVoyageWithEmptyFields = function(voyage) {",
+					"    var emptyVoyage = pm.collectionVariables.get(\"emptyVoyage\");",
+					"    _.mergeWith(emptyVoyage, voyage, function(v1, v2) {",
+					"        return Object.assign({}, v1, v2);",
+					"    });",
+					"    return emptyVoyage;",
 					"}",
 					"",
-					"Object.prototype.updateCurrentVoyage = function(voyageID) {",
-					"    pm.collectionVariables.set(\"current_voyage\", voyageID);",
+					"Object.prototype.compareJSON = function(expect, actual) {",
+					"    return _.isEqual(expect, actual);",
 					"}",
 					""
 				]
@@ -258,6 +540,14 @@
 			"key": "current_voyage",
 			"value": "1",
 			"type": "default"
+		},
+		{
+			"key": "empty_voyage",
+			"value": ""
+		},
+		{
+			"key": "sent_voyage_info",
+			"value": ""
 		}
 	]
 }
