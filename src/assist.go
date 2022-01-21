@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"time"
 )
 
 type clientVessel struct {
@@ -34,18 +35,23 @@ type location struct {
 	Status string     `json:"status"`
 }
 
+type scene struct {
+	Loc  location  `json:"location"`
+	Time time.Time `json:"time"`
+}
+
 type assist struct {
 	VoyageID int `json:"voyage-id"` // For linking an assist to a voyage
 
 	AssistID int `json:"assist-id"`
 
-	Client client   `json:"client"`
-	Pickup location `json:"pickup-location"`
+	Client client `json:"client"`
+	Pickup scene  `json:"pickup"`
 
 	Problem string `json:"problem"`
 	Action  string `json:"action"`
 
-	Dest location `json:"destination"`
+	Dest scene `json:"destination"`
 }
 
 func postAssist(ctx context.Context, body string) ([]byte, error) {

@@ -94,6 +94,94 @@
 			"response": []
 		},
 		{
+			"name": "New Empty Assist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Parse and store variables\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.collectionVariables.set(\"current_assist\", jsonData[\"assist-id\"]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"voyage-id\": {{current_voyage}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/assist",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"assist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Empty Assist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Read and cache empty test data\", function() {",
+							"    pm.collectionVariables.set(\"empty_assist\", pm.response.json());",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"assist-id\": {{current_assist}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/assist",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"assist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "New Voyage",
 			"event": [
 				{
@@ -395,12 +483,81 @@
 		},
 		{
 			"name": "New Assist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Parse and store variables\", function () {",
+							"    var requestJSON = JSON.parse(request.data);",
+							"    var jsonData = pm.response.json();",
+							"    pm.collectionVariables.set(\"current_assist\", jsonData[\"assist-id\"]);",
+							"    requestJSON[\"assist-id\"] = jsonData[\"assist-id\"];",
+							"    pm.collectionVariables.set(\"sent_assist_info\", requestJSON);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"voyage-id\": {{current_voyage}},\n    \"pickup-location\": {\n        \"name\": \"Coomera\",\n        \"gps\": {\n            \"lat\": -27.493021,\n            \"long\": 153.494023\n        },\n        \"status\": \"Berthed\"\n    },\n    \"problem\": \"Overheating\",\n    \"action\": \"Tow\"\n}",
+					"raw": "{\n    \"voyage-id\": {{current_voyage}},\n    \"pickup\": {\n        \"location\": {\n            \"name\": \"Coomera\",\n            \"gps\": {\n                \"lat\": -27.493021,\n                \"long\": 153.494023\n            },\n            \"status\": \"Berthed\",\n            \"depth-metres\": 3\n        },\n        \"time\": \"2022-01-01T11:12:13Z\"\n    },\n    \"problem\": \"Overheating\",\n    \"action\": \"Tow\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/assist",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"assist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate Assist Data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check all fields have been set\", function() {",
+							"    var responseJSON = pm.response.json();",
+							"    var emptyAssist = pm.collectionVariables.get(\"empty_assist\");",
+							"    var sentAssistInfo = pm.collectionVariables.get(\"sent_assist_info\");",
+							"    var expandedRequestJSON = Object.assign(emptyAssist, sentAssistInfo);",
+							"    if (!Object.prototype.compareJSON(expandedRequestJSON, responseJSON)) {",
+							"        postman.setNextRequest(null);",
+							"        pm.expect.fail(`Not all JSON fields updated. Expected ${JSON.stringify(expandedRequestJSON)}, actual: ${JSON.stringify(responseJSON)}`);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"assist-id\": {{current_assist}}\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -424,12 +581,30 @@
 		},
 		{
 			"name": "Update Assist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Parse and store variables\", function () {",
+							"    var requestJSON = JSON.parse(request.data);",
+							"    var jsonData = pm.response.json();",
+							"    var existingJSON = pm.collectionVariables.get(\"sent_assist_info\");",
+							"    var mergedJSON = Object.assign(existingJSON, requestJSON);",
+							"    mergedJSON[\"assist-id\"] = jsonData[\"assist-id\"];",
+							"    pm.collectionVariables.set(\"sent_assist_info\", mergedJSON);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"voyage-id\": {{current_voyage}},\n    \"client\": {\n        \"name\": \"John\",\n        \"phone\": \"+123456789\",\n        \"vessel\": {\n            \"name\": \"Fat Hooker\",\n            \"registration\": \"AB123Q\",\n            \"type\": \"Cruiser\",\n            \"length-metres\": 5,\n            \"POB\": 4\n        }\n    },\n    \"destination\": {\n        \"name\": \"Runaway Bay\",\n        \"gps\": {\n            \"lat\": -27.494001,\n            \"long\": 153.121123\n        }\n    }\n}",
+					"raw": "{\n    \"assist-id\": {{current_assist}},\n    \"client\": {\n        \"name\": \"John\",\n        \"phone\": \"+123456789\",\n        \"vessel\": {\n            \"name\": \"Fat Hooker\",\n            \"registration\": \"AB123Q\",\n            \"type\": \"Cruiser\",\n            \"length-metres\": 5,\n            \"pob\": 4,\n            \"colour\": \"white\"\n        },\n        \"member-number\": 0\n    },\n    \"destination\": {\n        \"location\": {\n            \"name\": \"Runaway Bay\",\n            \"gps\": {\n                \"lat\": -27.494001,\n                \"long\": 153.121123\n            },\n            \"status\": \"Berthed\",\n            \"depth-metres\": 2\n        },\n        \"time\": \"2022-01-01T15:16:17Z\"\n    }\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -475,6 +650,58 @@
 						"vmr",
 						"v0",
 						"risk"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate Assist Data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check all fields have been set\", function() {",
+							"    var responseJSON = pm.response.json();",
+							"    var emptyAssist = pm.collectionVariables.get(\"empty_assist\");",
+							"    var sentAssistInfo = pm.collectionVariables.get(\"sent_assist_info\");",
+							"    var expandedRequestJSON = Object.assign(emptyAssist, sentAssistInfo);",
+							"    if (!Object.prototype.compareJSON(expandedRequestJSON, responseJSON)) {",
+							"        postman.setNextRequest(null);",
+							"        pm.expect.fail(`Not all JSON fields updated. Expected ${JSON.stringify(expandedRequestJSON)}, actual: ${JSON.stringify(responseJSON)}`);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"assist-id\": {{current_assist}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/assist",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"assist"
 					]
 				}
 			},
@@ -547,6 +774,18 @@
 		},
 		{
 			"key": "sent_voyage_info",
+			"value": ""
+		},
+		{
+			"key": "current_assist",
+			"value": ""
+		},
+		{
+			"key": "sent_assist_info",
+			"value": ""
+		},
+		{
+			"key": "empty_assist",
 			"value": ""
 		}
 	]

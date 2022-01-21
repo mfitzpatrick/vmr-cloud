@@ -126,19 +126,28 @@ func TestGetAssistStoreAndRetrieve(t *testing.T) {
 		"voyage-id": 2,
 		"problem":   "Jump Start",
 		"action":    "Jump Start",
-		"pickup-location": map[string]interface{}{
-			"gps": map[string]interface{}{
-				"lat":  -27.4748923,
-				"long": 153.4839283,
+		"pickup": map[string]interface{}{
+			"location": map[string]interface{}{
+				"gps": map[string]interface{}{
+					"lat":  -27.4748923,
+					"long": 153.4839283,
+				},
 			},
+			"time": "2022-01-01T01:01:18Z",
+		},
+		"destination": map[string]interface{}{
+			"time": "0001-01-01T00:00:00Z",
 		},
 	}, map[string]interface{}{
 		"assist-id": float64(2),
-		"pickup-location": map[string]interface{}{
-			"gps": map[string]interface{}{
-				"lat":  -27.4748923,
-				"long": 153.4839283,
+		"pickup": map[string]interface{}{
+			"location": map[string]interface{}{
+				"gps": map[string]interface{}{
+					"lat":  -27.4748923,
+					"long": 153.4839283,
+				},
 			},
+			"time": "2022-01-01T01:01:18Z",
 		},
 	})
 }

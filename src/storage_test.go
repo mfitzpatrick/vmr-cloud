@@ -245,6 +245,11 @@ func equalAssist(t *testing.T, vExpect, v1, v2 assist) bool {
 }
 
 func TestMergeAssistStructs(t *testing.T) {
+	getTime := func(t *testing.T, str string) time.Time {
+		tm, err := time.Parse(time.RFC3339, str)
+		assert.Equal(t, nil, err)
+		return tm
+	}
 	v1 := assist{
 		AssistID: 1,
 	}
@@ -332,12 +337,15 @@ func TestMergeAssistStructs(t *testing.T) {
 				Phone:    "123456",
 				MemberNo: 57,
 			},
-			Pickup: location{
-				Name: "Coomera Waters",
-				GPS: coordinate{
-					Lat:  -27.0192739,
-					Long: 153.2937465,
+			Pickup: scene{
+				Loc: location{
+					Name: "Coomera Waters",
+					GPS: coordinate{
+						Lat:  -27.0192739,
+						Long: 153.2937465,
+					},
 				},
+				Time: getTime(t, "2022-01-01T01:02:03Z"),
 			},
 		}, assist{
 			AssistID: 0,
@@ -345,17 +353,22 @@ func TestMergeAssistStructs(t *testing.T) {
 				Name:     "Alice",
 				MemberNo: 57,
 			},
-			Pickup: location{
-				Name: "Coomera Waters",
-				GPS: coordinate{
-					Long: 153.2937465,
+			Pickup: scene{
+				Loc: location{
+					Name: "Coomera Waters",
+					GPS: coordinate{
+						Long: 153.2937465,
+					},
 				},
+				Time: getTime(t, "2022-01-01T01:02:03Z"),
 			},
 		}, assist{
 			AssistID: 2,
-			Pickup: location{
-				GPS: coordinate{
-					Lat: -27.0192739,
+			Pickup: scene{
+				Loc: location{
+					GPS: coordinate{
+						Lat: -27.0192739,
+					},
 				},
 			},
 			Client: client{
