@@ -215,8 +215,7 @@
 							"// because the old vessel ID was used to set up the test and create an empty voyage",
 							"// entry, which will mess with the voyage listing test at the end of the suite.",
 							"var currentVessel = pm.collectionVariables.get(\"current_vessel\");",
-							"currentVessel += 1;",
-							"pm.collectionVariables.set(\"current_vessel\", currentVessel);",
+							"pm.collectionVariables.set(\"current_vessel\", parseInt(currentVessel) + 1);",
 							""
 						],
 						"type": "text/javascript"
@@ -889,7 +888,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{schema}}://{{server}}/vmr/v0/voyage/list",
+					"raw": "{{schema}}://{{server}}/vmr/v0/voyage/list?limit=2",
 					"protocol": "{{schema}}",
 					"host": [
 						"{{server}}"
@@ -899,6 +898,13 @@
 						"v0",
 						"voyage",
 						"list"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "2",
+							"description": "The amount of voyages added in this test"
+						}
 					]
 				}
 			},

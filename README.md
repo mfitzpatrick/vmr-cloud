@@ -8,7 +8,7 @@ taskings and voyages. It is distributed via a docker image.
 ## Getting Started
 ### With Docker
 ```
-docker run -p "80:80" ghcr.io/mfitzpatrick/vmr-cloud:<version>
+docker run --rm -p "80:80" ghcr.io/mfitzpatrick/vmr-cloud:<version>
 ```
 
 ### Natively
@@ -37,3 +37,4 @@ service.
 NB: Currently there is a limitation in the list endpoint validation. When running this collection as a whole,
 ensure that the service has been freshly started otherwise the final voyage-list test endpoint will fail.
 This may be fixed in a future test update.
+
