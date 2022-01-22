@@ -13,9 +13,10 @@ type vessel struct {
 }
 
 type crew struct {
-	CrewID int    `json:"crew-id"`
-	Name   string `json:"name"`
-	Rank   string `json:"rank"`
+	CrewID    int    `json:"crew-id"`
+	Name      string `json:"name"`
+	Rank      string `json:"rank"`
+	IsSkipper bool   `json:"is-skipper"`
 }
 
 type wind struct {

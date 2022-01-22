@@ -187,6 +187,76 @@
 			]
 		},
 		{
+			"name": "List Crew",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check crew list\", function() {",
+							"    var responseJSON = pm.response.json();",
+							"    if (responseJSON.length != 6) {",
+							"        postman.setNextRequest(null);",
+							"        pm.expect.fail(`Crew list length mismatch: ${responseJSON.length} != 6`);",
+							"    }",
+							"    var skipperCount = 0;",
+							"    var crewCount = 0;",
+							"    for (let i = 0; i < responseJSON.length; i++) {",
+							"        if (responseJSON[i][\"is-skipper\"]) {",
+							"            skipperCount += 1;",
+							"        } else {",
+							"            crewCount += 1;",
+							"        }",
+							"    }",
+							"    if (skipperCount != 3 || crewCount != 3) {",
+							"        postman.setNextRequest(null);",
+							"        pm.expect.fail(`Result count mismatch: ${skipperCount}, ${crewCount}`);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/crew/list?limit=50",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"crew",
+						"list"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "50",
+							"description": "Maximum amount of crew members to return"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "New Voyage",
 			"event": [
 				{
@@ -227,7 +297,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"vessel-id\": {{current_vessel}},\n    \"start-time\": \"2022-01-01T10:00:01Z\",\n    \"start-hours\": 1,\n    \"skipper\": {\n        \"crew-id\": 156,\n        \"name\": \"Anne\",\n        \"rank\": \"Inshore Skipper\"\n    },\n    \"crew\": [\n        {\n            \"crew-id\": 25,\n            \"name\": \"Peter\",\n            \"rank\": \"Crew\"\n        },\n        {\n            \"crew-id\": 900,\n            \"name\": \"Julie\",\n            \"rank\": \"New Recruit\"\n        }\n    ],\n    \"weather\": {\n        \"seaway-tide\": {\n            \"height-metres\": 1.56,\n            \"time\": \"2022-01-01T01:02:03Z\"\n        },\n        \"wind\": {\n            \"speed-knots\": 11,\n            \"direction-degrees\": 90\n        }\n    }\n}",
+					"raw": "{\n    \"vessel-id\": {{current_vessel}},\n    \"start-time\": \"2022-01-01T10:00:01Z\",\n    \"start-hours\": 1,\n    \"skipper\": {\n        \"crew-id\": 156,\n        \"name\": \"Anne\",\n        \"rank\": \"Inshore Skipper\",\n        \"is-skipper\": true\n    },\n    \"crew\": [\n        {\n            \"crew-id\": 25,\n            \"name\": \"Peter\",\n            \"rank\": \"Crew\",\n            \"is-skipper\": false\n        },\n        {\n            \"crew-id\": 900,\n            \"name\": \"Julie\",\n            \"rank\": \"New Recruit\",\n            \"is-skipper\": false\n        }\n    ],\n    \"weather\": {\n        \"seaway-tide\": {\n            \"height-metres\": 1.56,\n            \"time\": \"2022-01-01T01:02:03Z\"\n        },\n        \"wind\": {\n            \"speed-knots\": 11,\n            \"direction-degrees\": 90\n        }\n    }\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -778,7 +848,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"vessel-id\": {{current_vessel}},\n    \"start-time\": \"2022-01-01T15:10:21Z\",\n    \"start-hours\": 7,\n    \"skipper\": {\n        \"crew-id\": 10,\n        \"name\": \"Jim\",\n        \"rank\": \"Offshore Skipper\"\n    },\n    \"crew\": [\n        {\n            \"crew-id\": 79,\n            \"name\": \"George\",\n            \"rank\": \"Crew\"\n        },\n        {\n            \"crew-id\": 91,\n            \"name\": \"Mavis Beacon\",\n            \"rank\": \"Recruit\"\n        }\n    ],\n    \"weather\": {\n        \"seaway-tide\": {\n            \"height-metres\": 0.2,\n            \"time\": \"2022-01-01T19:02:53Z\"\n        },\n        \"wind\": {\n            \"speed-knots\": 4,\n            \"direction-degrees\": 275\n        }\n    }\n}",
+					"raw": "{\n    \"vessel-id\": {{current_vessel}},\n    \"start-time\": \"2022-01-01T15:10:21Z\",\n    \"start-hours\": 7,\n    \"skipper\": {\n        \"crew-id\": 10,\n        \"name\": \"Jim\",\n        \"rank\": \"Offshore Skipper\",\n        \"is-skipper\": true\n    },\n    \"crew\": [\n        {\n            \"crew-id\": 79,\n            \"name\": \"George\",\n            \"rank\": \"Crew\",\n            \"is-skipper\": false\n        },\n        {\n            \"crew-id\": 91,\n            \"name\": \"Mavis Beacon\",\n            \"rank\": \"Recruit\",\n            \"is-skipper\": false\n        }\n    ],\n    \"weather\": {\n        \"seaway-tide\": {\n            \"height-metres\": 0.2,\n            \"time\": \"2022-01-01T19:02:53Z\"\n        },\n        \"wind\": {\n            \"speed-knots\": 4,\n            \"direction-degrees\": 275\n        }\n    }\n}",
 					"options": {
 						"raw": {
 							"language": "json"

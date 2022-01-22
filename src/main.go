@@ -19,6 +19,7 @@ func routeURL(r *http.Request) ([]byte, error) {
 		handler     func(ctx context.Context, body string, query url.Values) ([]byte, error)
 	}
 	routes := []routeEntry{
+		{http.MethodGet, HTTP_URI_BASE + "/crew/list", listCrew},
 		{http.MethodPost, HTTP_URI_BASE + "/voyage", postVoyage},
 		{http.MethodGet, HTTP_URI_BASE + "/voyage", getVoyage},
 		{http.MethodGet, HTTP_URI_BASE + "/voyage/list", listVoyage},

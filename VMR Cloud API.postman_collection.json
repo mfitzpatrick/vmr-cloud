@@ -6,6 +6,46 @@
 	},
 	"item": [
 		{
+			"name": "List Crew",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/crew/list?limit=50",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"crew",
+						"list"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "50",
+							"description": "Maximum amount of crew members to return"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "New Voyage",
 			"request": {
 				"method": "POST",
