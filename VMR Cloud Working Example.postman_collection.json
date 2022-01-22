@@ -6,180 +6,185 @@
 	},
 	"item": [
 		{
-			"name": "New Empty Voyage",
-			"event": [
+			"name": "Test Setup",
+			"item": [
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Parse and store variables\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.collectionVariables.set(\"current_voyage\", jsonData[\"voyage-id\"]);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"vessel-id\": {{current_vessel}}\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+					"name": "New Empty Voyage",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Parse and store variables\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"current_voyage\", jsonData[\"voyage-id\"]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
 						}
-					}
-				},
-				"url": {
-					"raw": "{{schema}}://{{server}}/vmr/v0/voyage",
-					"protocol": "{{schema}}",
-					"host": [
-						"{{server}}"
 					],
-					"path": [
-						"vmr",
-						"v0",
-						"voyage"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Empty Voyage",
-			"event": [
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"vessel-id\": {{current_vessel}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{schema}}://{{server}}/vmr/v0/voyage",
+							"protocol": "{{schema}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"vmr",
+								"v0",
+								"voyage"
+							]
+						}
+					},
+					"response": []
+				},
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Read and cache empty test data\", function() {",
-							"    pm.collectionVariables.set(\"empty_voyage\", pm.response.json());",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"voyage-id\": {{current_voyage}}\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+					"name": "Get Empty Voyage",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Read and cache empty test data\", function() {",
+									"    pm.collectionVariables.set(\"empty_voyage\", pm.response.json());",
+									"});"
+								],
+								"type": "text/javascript"
+							}
 						}
-					}
-				},
-				"url": {
-					"raw": "{{schema}}://{{server}}/vmr/v0/voyage",
-					"protocol": "{{schema}}",
-					"host": [
-						"{{server}}"
 					],
-					"path": [
-						"vmr",
-						"v0",
-						"voyage"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "New Empty Assist",
-			"event": [
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"voyage-id\": {{current_voyage}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{schema}}://{{server}}/vmr/v0/voyage",
+							"protocol": "{{schema}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"vmr",
+								"v0",
+								"voyage"
+							]
+						}
+					},
+					"response": []
+				},
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Parse and store variables\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.collectionVariables.set(\"current_assist\", jsonData[\"assist-id\"]);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"voyage-id\": {{current_voyage}}\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+					"name": "New Empty Assist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Parse and store variables\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"current_assist\", jsonData[\"assist-id\"]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
 						}
-					}
-				},
-				"url": {
-					"raw": "{{schema}}://{{server}}/vmr/v0/assist",
-					"protocol": "{{schema}}",
-					"host": [
-						"{{server}}"
 					],
-					"path": [
-						"vmr",
-						"v0",
-						"assist"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Empty Assist",
-			"event": [
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"voyage-id\": {{current_voyage}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{schema}}://{{server}}/vmr/v0/assist",
+							"protocol": "{{schema}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"vmr",
+								"v0",
+								"assist"
+							]
+						}
+					},
+					"response": []
+				},
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Read and cache empty test data\", function() {",
-							"    pm.collectionVariables.set(\"empty_assist\", pm.response.json());",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"assist-id\": {{current_assist}}\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+					"name": "Get Empty Assist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Read and cache empty test data\", function() {",
+									"    pm.collectionVariables.set(\"empty_assist\", pm.response.json());",
+									"});"
+								],
+								"type": "text/javascript"
+							}
 						}
-					}
-				},
-				"url": {
-					"raw": "{{schema}}://{{server}}/vmr/v0/assist",
-					"protocol": "{{schema}}",
-					"host": [
-						"{{server}}"
 					],
-					"path": [
-						"vmr",
-						"v0",
-						"assist"
-					]
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"assist-id\": {{current_assist}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{schema}}://{{server}}/vmr/v0/assist",
+							"protocol": "{{schema}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"vmr",
+								"v0",
+								"assist"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
 			"name": "New Voyage",
@@ -192,9 +197,27 @@
 							"    var requestJSON = JSON.parse(request.data);",
 							"    var jsonData = pm.response.json();",
 							"    pm.collectionVariables.set(\"current_voyage\", jsonData[\"voyage-id\"]);",
+							"    var emptyVoyage = pm.collectionVariables.get(\"empty_voyage\");",
+							"    var existingJSON = pm.collectionVariables.get(\"sent_voyage_info\");",
 							"    requestJSON[\"voyage-id\"] = jsonData[\"voyage-id\"];",
-							"    pm.collectionVariables.set(\"sent_voyage_info\", requestJSON);",
+							"    var mergedJSON = Object.prototype.updateVoyageForID(existingJSON, jsonData[\"voyage-id\"], emptyVoyage, requestJSON);",
+							"    pm.collectionVariables.set(\"sent_voyage_info\", mergedJSON);",
 							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Increment the current vessel ID before running the rest of this test suite",
+							"// because the old vessel ID was used to set up the test and create an empty voyage",
+							"// entry, which will mess with the voyage listing test at the end of the suite.",
+							"var currentVessel = pm.collectionVariables.get(\"current_vessel\");",
+							"currentVessel += 1;",
+							"pm.collectionVariables.set(\"current_vessel\", currentVessel);",
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -236,12 +259,11 @@
 						"exec": [
 							"pm.test(\"Check all fields have been set\", function() {",
 							"    var responseJSON = pm.response.json();",
-							"    var emptyVoyage = pm.collectionVariables.get(\"empty_voyage\");",
 							"    var sentVoyageInfo = pm.collectionVariables.get(\"sent_voyage_info\");",
-							"    var expandedRequestJSON = Object.assign(emptyVoyage, sentVoyageInfo);",
-							"    if (!Object.prototype.compareJSON(expandedRequestJSON, responseJSON)) {",
+							"    if (!Object.prototype.compareVoyage(sentVoyageInfo, responseJSON)) {",
 							"        postman.setNextRequest(null);",
-							"        pm.expect.fail(`Not all JSON fields updated. Expected ${JSON.stringify(expandedRequestJSON)}, actual: ${JSON.stringify(responseJSON)}`);",
+							"        var voyage = Object.prototype.findVoyageForID(sentVoyageInfo, responseJSON[\"voyage-id\"]);",
+							"        pm.expect.fail(`Not all JSON fields updated. Expected ${JSON.stringify(voyage)}, actual: ${JSON.stringify(responseJSON)}`);",
 							"    }",
 							"});"
 						],
@@ -290,12 +312,13 @@
 							"    var requestJSON = JSON.parse(request.data);",
 							"    var jsonData = pm.response.json();",
 							"    var existingJSON = pm.collectionVariables.get(\"sent_voyage_info\");",
-							"    var riskList = existingJSON[\"risk-history\"];",
-							"    if (riskList == undefined) {",
-							"        riskList = [];",
-							"    }",
+							"    var currentVoyageID = pm.collectionVariables.get(\"current_voyage\");",
 							"    requestJSON[\"risk-id\"] = jsonData[\"risk-id\"];",
-							"    existingJSON[\"risk-history\"] = [requestJSON, ...riskList];",
+							"    var ok = Object.prototype.appendRiskToVoyage(existingJSON, currentVoyageID, requestJSON);",
+							"    if (!ok) {",
+							"        postman.setNextRequest(null);",
+							"        pm.expect.fail(`Risk appending to voyage ${currentVoyageID} failed`);",
+							"    }",
 							"    pm.collectionVariables.set(\"sent_voyage_info\", existingJSON);",
 							"});"
 						],
@@ -339,12 +362,11 @@
 						"exec": [
 							"pm.test(\"Check all fields have been set\", function() {",
 							"    var responseJSON = pm.response.json();",
-							"    var emptyVoyage = pm.collectionVariables.get(\"empty_voyage\");",
 							"    var sentVoyageInfo = pm.collectionVariables.get(\"sent_voyage_info\");",
-							"    var expandedRequestJSON = Object.assign(emptyVoyage, sentVoyageInfo);",
-							"    if (!Object.prototype.compareJSON(expandedRequestJSON, responseJSON)) {",
+							"    if (!Object.prototype.compareVoyage(sentVoyageInfo, responseJSON)) {",
 							"        postman.setNextRequest(null);",
-							"        pm.expect.fail(`Not all JSON fields updated. Expected ${JSON.stringify(expandedRequestJSON)}, actual: ${JSON.stringify(responseJSON)}`);",
+							"        var voyage = Object.prototype.findVoyageForID(sentVoyageInfo, responseJSON[\"voyage-id\"]);",
+							"        pm.expect.fail(`Not all JSON fields updated. Expected ${JSON.stringify(voyage)}, actual: ${JSON.stringify(responseJSON)}`);",
 							"    }",
 							"});"
 						],
@@ -392,9 +414,10 @@
 							"pm.test(\"Parse and store variables\", function () {",
 							"    var requestJSON = JSON.parse(request.data);",
 							"    var jsonData = pm.response.json();",
+							"    var emptyVoyage = pm.collectionVariables.get(\"empty_voyage\");",
 							"    var existingJSON = pm.collectionVariables.get(\"sent_voyage_info\");",
-							"    var mergedJSON = Object.assign(existingJSON, requestJSON);",
-							"    mergedJSON[\"voyage-id\"] = jsonData[\"voyage-id\"];",
+							"    requestJSON[\"voyage-id\"] = jsonData[\"voyage-id\"];",
+							"    var mergedJSON = Object.prototype.updateVoyageForID(existingJSON, jsonData[\"voyage-id\"], emptyVoyage, requestJSON);",
 							"    pm.collectionVariables.set(\"sent_voyage_info\", mergedJSON);",
 							"});"
 						],
@@ -438,12 +461,11 @@
 						"exec": [
 							"pm.test(\"Check all fields have been set\", function() {",
 							"    var responseJSON = pm.response.json();",
-							"    var emptyVoyage = pm.collectionVariables.get(\"empty_voyage\");",
 							"    var sentVoyageInfo = pm.collectionVariables.get(\"sent_voyage_info\");",
-							"    var expandedRequestJSON = Object.assign(emptyVoyage, sentVoyageInfo);",
-							"    if (!Object.prototype.compareJSON(expandedRequestJSON, responseJSON)) {",
+							"    if (!Object.prototype.compareVoyage(sentVoyageInfo, responseJSON)) {",
 							"        postman.setNextRequest(null);",
-							"        pm.expect.fail(`Not all JSON fields updated. Expected ${JSON.stringify(expandedRequestJSON)}, actual: ${JSON.stringify(responseJSON)}`);",
+							"        var voyage = Object.prototype.findVoyageForID(sentVoyageInfo, responseJSON[\"voyage-id\"]);",
+							"        pm.expect.fail(`Not all JSON fields updated. Expected ${JSON.stringify(voyage)}, actual: ${JSON.stringify(responseJSON)}`);",
 							"    }",
 							"});"
 						],
@@ -627,35 +649,6 @@
 			"response": []
 		},
 		{
-			"name": "Update Risk",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"voyage-id\": {{current_voyage}},\n    \"time\": \"2022-01-01T11:12:05Z\",\n    \"management\": 1,\n    \"crew\": 1,\n    \"environment\": 1,\n    \"equipment\": 1,\n    \"type\": 1\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{schema}}://{{server}}/vmr/v0/risk",
-					"protocol": "{{schema}}",
-					"host": [
-						"{{server}}"
-					],
-					"path": [
-						"vmr",
-						"v0",
-						"risk"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Validate Assist Data",
 			"event": [
 				{
@@ -706,6 +699,210 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Update Risk",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Parse and store variables\", function () {",
+							"    var requestJSON = JSON.parse(request.data);",
+							"    var jsonData = pm.response.json();",
+							"    var existingJSON = pm.collectionVariables.get(\"sent_voyage_info\");",
+							"    var currentVoyageID = pm.collectionVariables.get(\"current_voyage\");",
+							"    requestJSON[\"risk-id\"] = jsonData[\"risk-id\"];",
+							"    var ok = Object.prototype.appendRiskToVoyage(existingJSON, currentVoyageID, requestJSON);",
+							"    if (!ok) {",
+							"        postman.setNextRequest(null);",
+							"        pm.expect.fail(`Risk appending to voyage ${currentVoyageID} failed`);",
+							"    }",
+							"    pm.collectionVariables.set(\"sent_voyage_info\", existingJSON);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"voyage-id\": {{current_voyage}},\n    \"time\": \"2022-01-01T11:12:05Z\",\n    \"management\": 1,\n    \"crew\": 1,\n    \"environment\": 1,\n    \"equipment\": 1,\n    \"type\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/risk",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"risk"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Voyage 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Parse and store variables\", function () {",
+							"    var requestJSON = JSON.parse(request.data);",
+							"    var jsonData = pm.response.json();",
+							"    pm.collectionVariables.set(\"current_voyage\", jsonData[\"voyage-id\"]);",
+							"    var emptyVoyage = pm.collectionVariables.get(\"empty_voyage\");",
+							"    var existingJSON = pm.collectionVariables.get(\"sent_voyage_info\");",
+							"    requestJSON[\"voyage-id\"] = jsonData[\"voyage-id\"];",
+							"    var mergedJSON = Object.prototype.updateVoyageForID(existingJSON, jsonData[\"voyage-id\"], emptyVoyage, requestJSON);",
+							"    pm.collectionVariables.set(\"sent_voyage_info\", mergedJSON);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"vessel-id\": {{current_vessel}},\n    \"start-time\": \"2022-01-01T15:10:21Z\",\n    \"start-hours\": 7,\n    \"skipper\": {\n        \"crew-id\": 10,\n        \"name\": \"Jim\",\n        \"rank\": \"Offshore Skipper\"\n    },\n    \"crew\": [\n        {\n            \"crew-id\": 79,\n            \"name\": \"George\",\n            \"rank\": \"Crew\"\n        },\n        {\n            \"crew-id\": 91,\n            \"name\": \"Mavis Beacon\",\n            \"rank\": \"Recruit\"\n        }\n    ],\n    \"weather\": {\n        \"seaway-tide\": {\n            \"height-metres\": 0.2,\n            \"time\": \"2022-01-01T19:02:53Z\"\n        },\n        \"wind\": {\n            \"speed-knots\": 4,\n            \"direction-degrees\": 275\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/voyage",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"voyage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Voyage Risk",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Parse and store variables\", function () {",
+							"    var requestJSON = JSON.parse(request.data);",
+							"    var jsonData = pm.response.json();",
+							"    var existingJSON = pm.collectionVariables.get(\"sent_voyage_info\");",
+							"    var currentVoyageID = pm.collectionVariables.get(\"current_voyage\");",
+							"    requestJSON[\"risk-id\"] = jsonData[\"risk-id\"];",
+							"    var ok = Object.prototype.appendRiskToVoyage(existingJSON, currentVoyageID, requestJSON);",
+							"    if (!ok) {",
+							"        postman.setNextRequest(null);",
+							"        pm.expect.fail(`Risk appending to voyage ${currentVoyageID} failed`);",
+							"    }",
+							"    pm.collectionVariables.set(\"sent_voyage_info\", existingJSON);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"voyage-id\": {{current_voyage}},\n    \"time\": \"2022-01-01T16:00:45Z\",\n    \"management\": 1,\n    \"crew\": 1,\n    \"environment\": 1,\n    \"equipment\": 1,\n    \"type\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/risk",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"risk"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Voyages",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check voyage list\", function() {",
+							"    var responseJSON = pm.response.json();",
+							"    var sentVoyageInfo = pm.collectionVariables.get(\"sent_voyage_info\");",
+							"    if (!Object.prototype.compareVoyageLists(sentVoyageInfo, responseJSON)) {",
+							"        postman.setNextRequest(null);",
+							"        pm.expect.fail(`Voyage list mismatch. Expected ${JSON.stringify(sentVoyageInfo)}, actual: ${JSON.stringify(responseJSON)}`);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"vessel-id\": {{current_vessel}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{schema}}://{{server}}/vmr/v0/voyage/list",
+					"protocol": "{{schema}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"vmr",
+						"v0",
+						"voyage",
+						"list"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [
@@ -716,13 +913,8 @@
 				"exec": [
 					"var _ = require('lodash');",
 					"",
-					"Object.prototype.stopRun = function(reason) {",
-					"    postman.setNextRequest(null);",
-					"    pm.expect.fail(reason);",
-					"}",
-					"",
 					"Object.prototype.expandVoyageWithEmptyFields = function(voyage) {",
-					"    var emptyVoyage = pm.collectionVariables.get(\"emptyVoyage\");",
+					"    var emptyVoyage = pm.collectionVariables.get(\"empty_voyage\");",
 					"    _.mergeWith(emptyVoyage, voyage, function(v1, v2) {",
 					"        return Object.assign({}, v1, v2);",
 					"    });",
@@ -731,6 +923,71 @@
 					"",
 					"Object.prototype.compareJSON = function(expect, actual) {",
 					"    return _.isEqual(expect, actual);",
+					"}",
+					"",
+					"Object.prototype.findVoyageForID = function(voyageList, voyageID) {",
+					"    for (let i = 0; i < voyageList.length; i++) {",
+					"        if (voyageList[i][\"voyage-id\"] == voyageID) {",
+					"            return voyageList[i];",
+					"        }",
+					"    }",
+					"    return undefined;",
+					"}",
+					"",
+					"Object.prototype.compareVoyage = function(voyageList, actual) {",
+					"    var voyage = Object.prototype.findVoyageForID(voyageList, actual[\"voyage-id\"]);",
+					"    if (voyage == undefined) {",
+					"        return false;",
+					"    } else {",
+					"        return _.isEqual(voyage, actual);",
+					"    }",
+					"}",
+					"",
+					"Object.prototype.compareVoyageLists = function(expectList, actualList) {",
+					"    if (expectList.length != actualList.length) {",
+					"        return false;",
+					"    }",
+					"    for (let i = 0; i < expectList.length; i++) {",
+					"        var voyage = Object.prototype.findVoyageForID(actualList, expectList[i][\"voyage-id\"]);",
+					"        var comparison = _.isEqual(expectList[i], voyage);",
+					"        if (!comparison) {",
+					"            console.log(`no voyage for ID ${expectList[i][\"voyage-id\"]}`);",
+					"            return false;",
+					"        }",
+					"    }",
+					"    return true;",
+					"}",
+					"",
+					"Object.prototype.updateVoyageForID = function(voyageList, voyageID, emptyVoyage, voyageUpdates) {",
+					"    if (voyageList == undefined) {",
+					"        voyageList = [];",
+					"    }",
+					"    var found = false;",
+					"    for (let i = 0; i < voyageList.length; i++) {",
+					"        if (voyageList[i][\"voyage-id\"] == voyageID) {",
+					"            voyage = voyageList[i]",
+					"            voyageList[i] = Object.assign(voyage, voyageUpdates);",
+					"            found = true;",
+					"            break;",
+					"        }",
+					"    }",
+					"    if (!found) {",
+					"        voyageList.push(Object.assign(emptyVoyage, voyageUpdates));",
+					"    }",
+					"    return voyageList;",
+					"}",
+					"",
+					"Object.prototype.appendRiskToVoyage = function(voyageList, voyageID, riskEntry) {",
+					"    var currentVoyage = Object.prototype.findVoyageForID(voyageList, voyageID);",
+					"    if (currentVoyage == undefined) {",
+					"        return false;",
+					"    }",
+					"    var riskList = currentVoyage[\"risk-history\"];",
+					"    if (riskList == undefined) {",
+					"        riskList = [];",
+					"    }",
+					"    currentVoyage[\"risk-history\"] = [riskEntry, ...riskList];",
+					"    return true;",
 					"}",
 					""
 				]
@@ -762,31 +1019,6 @@
 			"key": "current_vessel",
 			"value": "1",
 			"type": "default"
-		},
-		{
-			"key": "current_voyage",
-			"value": "1",
-			"type": "default"
-		},
-		{
-			"key": "empty_voyage",
-			"value": ""
-		},
-		{
-			"key": "sent_voyage_info",
-			"value": ""
-		},
-		{
-			"key": "current_assist",
-			"value": ""
-		},
-		{
-			"key": "sent_assist_info",
-			"value": ""
-		},
-		{
-			"key": "empty_assist",
-			"value": ""
 		}
 	]
 }

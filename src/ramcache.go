@@ -15,7 +15,7 @@ func init() {
 
 // VOYAGE RAMCACHE ITEMS
 type voyageSerialiseResponse struct {
-	val voyage
+	val []voyage
 	err error
 }
 
@@ -41,33 +41,53 @@ func ramcacheVoyageInit() {
 		}
 		return max + 1
 	}
-	set := func(cmd voyageSerialiseCMD) (voyage, error) {
+	set := func(cmd voyageSerialiseCMD) ([]voyage, error) {
 		if cmd.val.VoyageID == 0 && cmd.val.VesselID == 0 {
-			return voyage{}, INVALID_VESSEL_ID.Errorf("voyage storage map set")
+			return []voyage{}, INVALID_VESSEL_ID.Errorf("voyage storage map set")
 		} else if cmd.val.VoyageID == 0 && cmd.val.VesselID != 0 {
 			// A new record should be created. Get the ID
 			cmd.val.VoyageID = newVoyageEntryID()
 		}
 		if cached, ok := voyageCache[cmd.val.VoyageID]; ok {
 			if merged, err := mergeVoyageStructs(cached, cmd.val); err != nil {
-				return voyage{}, STORAGE_FAIL.Errorf("voyage storage map merge: %v", err)
+				return []voyage{}, STORAGE_FAIL.Errorf("voyage storage map merge: %v", err)
 			} else {
 				voyageCache[cmd.val.VoyageID] = merged
 			}
 		} else {
 			voyageCache[cmd.val.VoyageID] = cmd.val
 		}
-		return voyage{VoyageID: cmd.val.VoyageID}, nil
+		return []voyage{{VoyageID: cmd.val.VoyageID}}, nil
 	}
-	get := func(cmd voyageSerialiseCMD) (voyage, error) {
+	get := func(cmd voyageSerialiseCMD) ([]voyage, error) {
 		if cmd.val.VoyageID == 0 {
-			return voyage{}, INVALID_VOYAGE_ID.Errorf("voyage storage map get")
+			return []voyage{}, INVALID_VOYAGE_ID.Errorf("voyage storage map get")
 		}
 		if val, ok := voyageCache[cmd.val.VoyageID]; !ok {
-			return voyage{}, VOYAGE_NOT_FOUND.Errorf("voyage storage map get")
+			return []voyage{}, VOYAGE_NOT_FOUND.Errorf("voyage storage map get")
 		} else {
-			return val, nil
+			return []voyage{val}, nil
 		}
+	}
+	getList := func(cmd voyageSerialiseCMD) ([]voyage, error) {
+		if cmd.val.VesselID == 0 {
+			return []voyage{}, INVALID_VESSEL_ID.Errorf("voyage storage map get")
+		}
+		voyageList := []voyage{}
+		for _, val := range voyageCache {
+			if val.VesselID == cmd.val.VesselID {
+				voyageList = append(voyageList, val)
+			}
+		}
+		// Return the slice sorted by time ascending
+		sort.Slice(voyageList, func(i, j int) bool {
+			if !voyageList[i].StartTime.IsZero() && !voyageList[j].StartTime.IsZero() {
+				return voyageList[i].StartTime.Before(voyageList[j].StartTime)
+			} else {
+				return voyageList[i].VoyageID < voyageList[j].VoyageID
+			}
+		})
+		return voyageList, nil
 	}
 	go func() {
 		for {
@@ -76,6 +96,8 @@ func ramcacheVoyageInit() {
 				resp := voyageSerialiseResponse{}
 				if cmd.set {
 					resp.val, resp.err = set(cmd)
+				} else if cmd.val.VesselID != 0 && cmd.val.VoyageID == 0 {
+					resp.val, resp.err = getList(cmd)
 				} else {
 					resp.val, resp.err = get(cmd)
 				}
@@ -99,7 +121,13 @@ func storeVoyage(ctx context.Context, v voyage) (int, error) {
 	}
 	select { //retrieve answer
 	case resp := <-done:
-		return resp.val.VoyageID, errors.Wrapf(resp.err, "store voyage")
+		if resp.err != nil {
+			return 0, errors.Wrapf(resp.err, "store voyage")
+		} else if len(resp.val) != 1 {
+			return 0, STORAGE_FAIL.Errorf("incorrect number of voyages stored: %d != %d",
+				len(resp.val), 1)
+		}
+		return resp.val[0].VoyageID, nil
 	case <-ctx.Done():
 		return 0, errors.Wrapf(ctx.Err(), "store voyage")
 	}
@@ -123,16 +151,54 @@ func retrieveVoyage(ctx context.Context, voyageID int) (voyage, error) {
 	case resp := <-done:
 		if resp.err != nil {
 			return voyage{}, errors.Wrapf(resp.err, "retrieve voyage")
-		} else if riskList, err := retrieveRiskForVoyage(ctx, resp.val.VoyageID); err != nil {
+		} else if len(resp.val) != 1 {
+			return voyage{}, RETRIEVAL_FAIL.Errorf("incorrect number of voyages retrieved: %d != %d",
+				len(resp.val), 1)
+		} else if riskList, err := retrieveRiskForVoyage(ctx, resp.val[0].VoyageID); err != nil {
 			return voyage{}, RETRIEVAL_FAIL.Errorf("retrieve voyage risk list")
 		} else {
-			resp.val.RiskList = riskList
+			resp.val[0].RiskList = riskList
 		}
-		return resp.val, nil
+		return resp.val[0], nil
 	case <-ctx.Done():
 		return voyage{}, errors.Wrapf(ctx.Err(), "retrieve voyage")
 	}
 	return voyage{}, RETRIEVAL_FAIL.Errorf("retrieve voyage")
+}
+
+func retrieveVoyageList(ctx context.Context, vesselID int) ([]voyage, error) {
+	done := make(chan voyageSerialiseResponse)
+	cmd := voyageSerialiseCMD{
+		val: voyage{
+			vessel: vessel{
+				VesselID: vesselID,
+			},
+		},
+		done: done,
+	}
+	select { //Send to map
+	case voyageCacheChan <- cmd:
+	case <-ctx.Done():
+		return []voyage{}, errors.Wrapf(ctx.Err(), "list voyage")
+	}
+	select { //get answer
+	case resp := <-done:
+		if resp.err != nil {
+			return []voyage{}, errors.Wrapf(resp.err, "list voyage")
+		} else {
+			for i, v := range resp.val {
+				if riskList, err := retrieveRiskForVoyage(ctx, v.VoyageID); err != nil {
+					return []voyage{}, RETRIEVAL_FAIL.Errorf("list voyage risk list")
+				} else {
+					resp.val[i].RiskList = riskList
+				}
+			}
+		}
+		return resp.val, nil
+	case <-ctx.Done():
+		return []voyage{}, errors.Wrapf(ctx.Err(), "list voyage")
+	}
+	return []voyage{}, RETRIEVAL_FAIL.Errorf("list voyage")
 }
 
 // RAMCACHE ASSIST ITEMS

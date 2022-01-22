@@ -93,3 +93,23 @@ func getVoyage(ctx context.Context, body string) ([]byte, error) {
 		return b, nil
 	}
 }
+
+func listVoyage(ctx context.Context, body string) ([]byte, error) {
+	type request struct {
+		VesselID int `json:"vessel-id"`
+	}
+	var req request
+	if err := json.Unmarshal([]byte(body), &req); err != nil {
+		return []byte{}, JSON_UNMARSHAL.Errorf("list voyage: %v with input %s", err, body)
+	}
+	if req.VesselID == 0 {
+		return []byte{}, INVALID_VESSEL_ID.Errorf("list voyage")
+	}
+	if foundItems, err := retrieveVoyageList(ctx, req.VesselID); err != nil {
+		return []byte{}, RETRIEVAL_FAIL.Errorf("list voyage: %v", err)
+	} else if b, err := json.Marshal(foundItems); err != nil {
+		return []byte{}, JSON_MARSHAL.Errorf("list voyage: %v", err)
+	} else {
+		return b, nil
+	}
+}

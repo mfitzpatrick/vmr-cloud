@@ -46,6 +46,42 @@ func TestRetrieveVoyage(t *testing.T) {
 	assert.Equal(t, mapEntry, vEntry)
 }
 
+func TestRetrieveVoyageList(t *testing.T) {
+	setupVoyageStorage()
+	getTime := func(t *testing.T, str string) time.Time {
+		tm, err := time.Parse(time.RFC3339, str)
+		assert.Equal(t, nil, err)
+		return tm
+	}
+	voyageList := []voyage{
+		{
+			VoyageID: 1,
+			vessel: vessel{
+				VesselID: 1,
+			},
+			StartEngineHours: 101,
+			StartTime:        getTime(t, "2022-01-01T01:02:03Z"),
+			RiskList:         []risk{},
+		},
+		{
+			VoyageID: 2,
+			vessel: vessel{
+				VesselID: 1,
+			},
+			StartEngineHours: 103,
+			StartTime:        getTime(t, "2022-01-01T03:02:03Z"),
+			RiskList:         []risk{},
+		},
+	}
+	for _, v := range voyageList {
+		voyageCache[v.VoyageID] = v
+	}
+
+	vEntryList, err := retrieveVoyageList(context.Background(), voyageList[0].VesselID)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, voyageList, vEntryList)
+}
+
 func TestStoreVoyageMultipleEntries(t *testing.T) {
 	setupVoyageStorage()
 

@@ -61,6 +61,23 @@ func equalVoyageMap(t *testing.T, expect map[string]interface{}, body string) bo
 	}
 }
 
+func equalVoyageMapList(t *testing.T, expect []map[string]interface{}, body string) bool {
+	expectVoyage := []voyage{}
+	actualVoyage := []voyage{}
+	if expectString, err := json.Marshal(expect); err != nil {
+		t.Errorf("JSON marshal: %v", err)
+		return false
+	} else if err := json.Unmarshal(expectString, &expectVoyage); err != nil {
+		t.Errorf("JSON unmarshal: %v", err)
+		return false
+	} else if err := json.Unmarshal([]byte(body), &actualVoyage); err != nil {
+		t.Errorf("JSON unmarshal: %v", err)
+		return false
+	} else {
+		return assert.Equal(t, expectVoyage, actualVoyage)
+	}
+}
+
 func equalAssistMap(t *testing.T, expect map[string]interface{}, body string) bool {
 	expectAssist := assist{}
 	actualAssist := assist{}

@@ -20,6 +20,7 @@ func routeURL(r *http.Request) ([]byte, error) {
 	routes := []routeEntry{
 		{http.MethodPost, HTTP_URI_BASE + "/voyage", postVoyage},
 		{http.MethodGet, HTTP_URI_BASE + "/voyage", getVoyage},
+		{http.MethodGet, HTTP_URI_BASE + "/voyage/list", listVoyage},
 		{http.MethodPost, HTTP_URI_BASE + "/risk", newRisk},
 		{http.MethodPost, HTTP_URI_BASE + "/assist", postAssist},
 		{http.MethodGet, HTTP_URI_BASE + "/assist", getAssist},
