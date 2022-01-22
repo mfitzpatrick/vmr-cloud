@@ -22,6 +22,7 @@ var (
 	INVALID_RISK_ID    = httpError{statusCode: http.StatusBadRequest, ID: "invalid-risk-id"}
 	IMMUTABLE_RISK     = httpError{statusCode: http.StatusBadRequest, ID: "risk-is-not-mutable"}
 	RISK_TIME_REQUIRED = httpError{statusCode: http.StatusBadRequest, ID: "risk-requires-time"}
+	INVALID_QSTRING    = httpError{statusCode: http.StatusBadRequest, ID: "invalid-query-string-format"}
 	ENDPOINT_NOT_FOUND = httpError{statusCode: http.StatusNotFound, ID: "endpoint-not-found"}
 	VOYAGE_NOT_FOUND   = httpError{statusCode: http.StatusNotFound, ID: "voyage-not-found"}
 	ASSIST_NOT_FOUND   = httpError{statusCode: http.StatusNotFound, ID: "assist-not-found"}

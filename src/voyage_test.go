@@ -290,24 +290,10 @@ func TestVoyageList(t *testing.T) {
 	setupRiskStorage()
 	expectList := []map[string]interface{}{
 		{
-			"voyage-id":    float64(1),
-			"vessel-id":    2,
-			"start-hours":  101,
-			"start-time":   "2022-01-03T15:13:12Z",
-			"end-time":     "0001-01-01T00:00:00Z",
-			"title":        "Breakdown Coomera",
-			"risk-history": []risk{},
-			"weather": map[string]interface{}{
-				"seaway-tide": map[string]interface{}{
-					"height-metres": 1.12,
-					"time":          "2022-01-03T11:12:13Z",
-				},
-			},
-		}, {
 			"voyage-id":    float64(2),
 			"vessel-id":    2,
 			"start-hours":  101,
-			"start-time":   "2022-01-04T05:03:02Z",
+			"start-time":   "2022-01-04T15:03:02Z",
 			"end-time":     "0001-01-01T00:00:00Z",
 			"title":        "Breakdown Coomera Waters",
 			"risk-history": []risk{},
@@ -317,13 +303,27 @@ func TestVoyageList(t *testing.T) {
 					"time":          "2022-01-04T11:12:13Z",
 				},
 			},
+		}, {
+			"voyage-id":    float64(1),
+			"vessel-id":    2,
+			"start-hours":  101,
+			"start-time":   "2022-01-03T05:13:12Z",
+			"end-time":     "0001-01-01T00:00:00Z",
+			"title":        "Breakdown Coomera",
+			"risk-history": []risk{},
+			"weather": map[string]interface{}{
+				"seaway-tide": map[string]interface{}{
+					"height-metres": 1.12,
+					"time":          "2022-01-03T11:12:13Z",
+				},
+			},
 		},
 	}
 
-	testVoyageStoreAndRetrieve(t, expectList[0], map[string]interface{}{
+	testVoyageStoreAndRetrieve(t, expectList[1], map[string]interface{}{
 		"vessel-id":   2,
 		"start-hours": 101,
-		"start-time":  "2022-01-03T15:13:12Z",
+		"start-time":  "2022-01-03T05:13:12Z",
 		"title":       "Breakdown Coomera",
 		"weather": map[string]interface{}{
 			"seaway-tide": map[string]interface{}{
@@ -333,10 +333,10 @@ func TestVoyageList(t *testing.T) {
 		},
 	})
 
-	testVoyageStoreAndRetrieve(t, expectList[1], map[string]interface{}{
+	testVoyageStoreAndRetrieve(t, expectList[0], map[string]interface{}{
 		"vessel-id":   2,
 		"start-hours": 101,
-		"start-time":  "2022-01-04T05:03:02Z",
+		"start-time":  "2022-01-04T15:03:02Z",
 		"title":       "Breakdown Coomera Waters",
 		"weather": map[string]interface{}{
 			"seaway-tide": map[string]interface{}{
@@ -353,4 +353,33 @@ func TestVoyageList(t *testing.T) {
 	assert.Equal(t, nil, err)
 	assert.Equal(t, http.StatusOK, code)
 	equalVoyageMapList(t, expectList, body)
+
+	// List voyages older than start time
+	code, body, err = request(http.MethodGet, "/voyage/list?start-time=2022-01-04T15:03:02Z",
+		map[string]interface{}{
+			"vessel-id": expectList[0]["vessel-id"],
+		},
+	)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, http.StatusOK, code)
+	equalVoyageMapList(t, []map[string]interface{}{expectList[1]}, body)
+
+	// List voyages limit 0
+	code, body, err = request(http.MethodGet, "/voyage/list?start-time=2022-01-04T15:03:02Z&limit=0",
+		map[string]interface{}{
+			"vessel-id": expectList[0]["vessel-id"],
+		},
+	)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, http.StatusOK, code)
+	equalVoyageMapList(t, []map[string]interface{}{}, body)
+	// List voyages limit 1
+	code, body, err = request(http.MethodGet, "/voyage/list?start-time=2022-01-04T15:03:02Z&limit=1",
+		map[string]interface{}{
+			"vessel-id": expectList[0]["vessel-id"],
+		},
+	)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, http.StatusOK, code)
+	equalVoyageMapList(t, []map[string]interface{}{expectList[1]}, body)
 }

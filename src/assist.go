@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"net/url"
 	"time"
 )
 
@@ -54,7 +55,7 @@ type assist struct {
 	Dest scene `json:"destination"`
 }
 
-func postAssist(ctx context.Context, body string) ([]byte, error) {
+func postAssist(ctx context.Context, body string, query url.Values) ([]byte, error) {
 	type request struct {
 		assist
 	}
@@ -78,7 +79,7 @@ func postAssist(ctx context.Context, body string) ([]byte, error) {
 	}
 }
 
-func getAssist(ctx context.Context, body string) ([]byte, error) {
+func getAssist(ctx context.Context, body string, query url.Values) ([]byte, error) {
 	type request struct {
 		AssistID int `json:"assist-id"`
 	}

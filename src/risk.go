@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"net/url"
 	"time"
 )
 
@@ -17,7 +18,7 @@ type risk struct {
 	Env      int       `json:"environment"`
 }
 
-func newRisk(ctx context.Context, body string) ([]byte, error) {
+func newRisk(ctx context.Context, body string, query url.Values) ([]byte, error) {
 	type request struct {
 		risk
 	}

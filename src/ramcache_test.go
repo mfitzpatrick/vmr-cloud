@@ -60,7 +60,7 @@ func TestRetrieveVoyageList(t *testing.T) {
 				VesselID: 1,
 			},
 			StartEngineHours: 101,
-			StartTime:        getTime(t, "2022-01-01T01:02:03Z"),
+			StartTime:        getTime(t, "2022-01-01T03:02:03Z"),
 			RiskList:         []risk{},
 		},
 		{
@@ -69,7 +69,7 @@ func TestRetrieveVoyageList(t *testing.T) {
 				VesselID: 1,
 			},
 			StartEngineHours: 103,
-			StartTime:        getTime(t, "2022-01-01T03:02:03Z"),
+			StartTime:        getTime(t, "2022-01-01T01:02:03Z"),
 			RiskList:         []risk{},
 		},
 	}
@@ -77,7 +77,7 @@ func TestRetrieveVoyageList(t *testing.T) {
 		voyageCache[v.VoyageID] = v
 	}
 
-	vEntryList, err := retrieveVoyageList(context.Background(), voyageList[0].VesselID)
+	vEntryList, err := retrieveVoyageList(context.Background(), voyageList[0].VesselID, time.Time{}, 10)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, voyageList, vEntryList)
 }

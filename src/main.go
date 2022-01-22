@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/pkg/errors"
 )
@@ -15,7 +16,7 @@ const HTTP_URI_BASE = "/vmr/v0"
 func routeURL(r *http.Request) ([]byte, error) {
 	type routeEntry struct {
 		method, uri string
-		handler     func(ctx context.Context, body string) ([]byte, error)
+		handler     func(ctx context.Context, body string, query url.Values) ([]byte, error)
 	}
 	routes := []routeEntry{
 		{http.MethodPost, HTTP_URI_BASE + "/voyage", postVoyage},
@@ -31,7 +32,7 @@ func routeURL(r *http.Request) ([]byte, error) {
 	} // else error ignored
 	for _, route := range routes {
 		if route.uri == r.URL.Path && route.method == r.Method {
-			return route.handler(r.Context(), body)
+			return route.handler(r.Context(), body, r.URL.Query())
 		}
 	}
 	return []byte{}, ENDPOINT_NOT_FOUND.Errorf("endpoint %s %s not found", r.Method, r.URL.Path)

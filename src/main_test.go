@@ -109,3 +109,20 @@ func equalHTTPError(t *testing.T, expect httpError, code int, body string) bool 
 	}
 	return true
 }
+
+// Test how URL parsing works in golang
+func TestURLParsing(t *testing.T) {
+	urlList := []string{
+		"/voyage",
+		"/vmr/v0/voyage/list?start=1",
+		"/voyage?start=1&end=75",
+		"/vmr/v0/voyage/list?start=start-time=2022-01-04T05:03:02Z",
+	}
+	for _, tCase := range urlList {
+		req, err := http.NewRequest(http.MethodGet, tCase, strings.NewReader(""))
+		assert.Equal(t, nil, err)
+		withoutQstring := strings.Split(tCase, "?")
+		assert.Equal(t, true, len(withoutQstring) >= 1)
+		assert.Equal(t, withoutQstring[0], req.URL.Path)
+	}
+}

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"sort"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -20,9 +21,11 @@ type voyageSerialiseResponse struct {
 }
 
 type voyageSerialiseCMD struct {
-	set  bool
-	val  voyage
-	done chan<- voyageSerialiseResponse
+	set             bool
+	val             voyage
+	listStartTime   time.Time
+	listLengthLimit int
+	done            chan<- voyageSerialiseResponse
 }
 
 var voyageCache map[int]voyage
@@ -76,15 +79,22 @@ func ramcacheVoyageInit() {
 		voyageList := []voyage{}
 		for _, val := range voyageCache {
 			if val.VesselID == cmd.val.VesselID {
-				voyageList = append(voyageList, val)
+				if cmd.listStartTime.IsZero() {
+					voyageList = append(voyageList, val)
+				} else if val.StartTime.Before(cmd.listStartTime) {
+					voyageList = append(voyageList, val)
+				}
 			}
 		}
-		// Return the slice sorted by time ascending
+		if len(voyageList) > cmd.listLengthLimit {
+			voyageList = voyageList[:cmd.listLengthLimit] //truncate
+		}
+		// Return the slice sorted by time descending
 		sort.Slice(voyageList, func(i, j int) bool {
 			if !voyageList[i].StartTime.IsZero() && !voyageList[j].StartTime.IsZero() {
-				return voyageList[i].StartTime.Before(voyageList[j].StartTime)
+				return voyageList[i].StartTime.After(voyageList[j].StartTime)
 			} else {
-				return voyageList[i].VoyageID < voyageList[j].VoyageID
+				return voyageList[i].VoyageID > voyageList[j].VoyageID
 			}
 		})
 		return voyageList, nil
@@ -166,7 +176,7 @@ func retrieveVoyage(ctx context.Context, voyageID int) (voyage, error) {
 	return voyage{}, RETRIEVAL_FAIL.Errorf("retrieve voyage")
 }
 
-func retrieveVoyageList(ctx context.Context, vesselID int) ([]voyage, error) {
+func retrieveVoyageList(ctx context.Context, vesselID int, startTime time.Time, limit int) ([]voyage, error) {
 	done := make(chan voyageSerialiseResponse)
 	cmd := voyageSerialiseCMD{
 		val: voyage{
@@ -174,7 +184,9 @@ func retrieveVoyageList(ctx context.Context, vesselID int) ([]voyage, error) {
 				VesselID: vesselID,
 			},
 		},
-		done: done,
+		listStartTime:   startTime,
+		listLengthLimit: limit,
+		done:            done,
 	}
 	select { //Send to map
 	case voyageCacheChan <- cmd:
